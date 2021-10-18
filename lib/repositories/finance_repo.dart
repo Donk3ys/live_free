@@ -1,9 +1,9 @@
 import 'package:fpdart/fpdart.dart';
+import 'package:live_free/core/constants.dart';
 import 'package:live_free/external_services/local_data_src.dart';
 import 'package:live_free/external_services/remote_finance_src.dart';
 import 'package:loggy/loggy.dart';
 
-import '../core/failure.dart';
 import 'utils_repo.dart';
 
 class FinanceRepository with UiLoggy {
@@ -17,7 +17,7 @@ class FinanceRepository with UiLoggy {
         _remoteFinanceSource = remoteFinanceSource;
 
   // FULL FUNCTIONS
-  Future<Either<Failure, Unit>> doSomething() async {
+  FailOr<Unit> doSomething() async {
     try {
       return right(unit);
     } catch (e, s) {

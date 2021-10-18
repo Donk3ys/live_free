@@ -3,7 +3,7 @@ import 'package:fpdart/fpdart.dart';
 
 import 'failure.dart';
 
-const kVersion = 'Powered by Skyl4ark [0.1.4]'; // 16:40 14 Oct 2021
+const kVersion = 'Powered by Donk3y [0.0.0]'; // 16:40 14 Oct 2021
 
 // TYPE DEF
 typedef JsonMap = Map<String, dynamic>;
@@ -25,11 +25,12 @@ const kColorCardLight = Color(0xfff8f8f8);
 
 const kColorAccent = Colors.green;
 
-const kColoAdd = Colors.green;
+const kColorAdd = Colors.green;
 const kColorRemove = Colors.red;
 const kColorUpdate = Colors.blue;
 
-const kColorSpCardText = Colors.white;
+const kColorIncome = Colors.green;
+const kColorExpence = Colors.red;
 
 const kColorSuccess = Colors.green;
 // const kColorSuccess = Color(0xff89b482);
@@ -49,12 +50,6 @@ const kTextStyleHeading = TextStyle(
 const kTextStyleSubHeading = TextStyle(
   fontSize: 18,
   fontWeight: FontWeight.bold,
-  letterSpacing: 1.5,
-);
-
-const kTextStyleSubHeadingSecondary = TextStyle(
-  // color: kColorSecondaryText,
-  fontSize: 18,
 );
 
 const kTextStyleMedium = TextStyle(
@@ -67,7 +62,7 @@ const kTextStyleSmall = TextStyle(
 
 const kTextStyleSmallSecondary = TextStyle(
   fontSize: 12,
-  // color: kColorSecondaryText
+  color: kColorSecondaryText,
 );
 
 const kTextStyleMessage = TextStyle(
