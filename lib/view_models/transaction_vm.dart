@@ -49,6 +49,8 @@ class TransactionViewModel extends ChangeNotifier {
           TransactionCategory(id: 9, name: "Travel"),
           TransactionCategory(id: 10, name: "Gift"),
           TransactionCategory(id: 11, name: "Entertain"),
+          TransactionCategory(id: 12, name: "Education"),
+          TransactionCategory(id: 13, name: "Other"),
         ];
 
         // Sort list
@@ -130,7 +132,9 @@ class TransactionViewModel extends ChangeNotifier {
   }
 
   Future<void> addTransaction(
-      BuildContext context, Transaction transaction) async {
+    BuildContext context,
+    Transaction transaction,
+  ) async {
     _setState(_State.addingTransaction);
 
     final failureOrUser = await _financeRepository.doSomething();
@@ -149,5 +153,28 @@ class TransactionViewModel extends ChangeNotifier {
     await Future.delayed(const Duration(milliseconds: 1000));
     _setState(_State.idle);
     Navigator.of(context).pop();
+  }
+
+  Future<void> removeTransaction(
+    BuildContext context,
+    Transaction transaction,
+  ) async {
+    // _setState(_State.addingTransaction);
+
+    final failureOrUser = await _financeRepository.doSomething();
+    failureOrUser.fold(
+      (failure) {
+        ViewModelUtil.handleFailure(
+          context: context,
+          failure: failure,
+        );
+      },
+      (_) {
+        monthTransactionList.remove(transaction);
+      },
+    );
+
+    await Future.delayed(const Duration(milliseconds: 1000));
+    _setState(_State.idle);
   }
 }

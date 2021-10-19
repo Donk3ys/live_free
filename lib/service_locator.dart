@@ -6,7 +6,7 @@ import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:live_free/external_services/network_info.dart';
 import 'package:live_free/external_services/remote_finance_src.dart';
 import 'package:live_free/repositories/finance_repo.dart';
-import 'package:live_free/view_models/finance_vm.dart';
+import 'package:live_free/view_models/transaction_vm.dart';
 import 'package:loggy/loggy.dart';
 
 import 'core/logging.dart';

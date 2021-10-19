@@ -52,19 +52,19 @@ class Transaction {
     // required this.name,
     required this.amount,
     required this.timestamp,
-    required TransactionType transactionType,
+    required this.transactionType,
     required this.category,
-  }) : _transactionType = transactionType;
+  });
 
   final String uuid;
   // final String name;
   final int amount;
   final DateTime timestamp;
-  final TransactionType _transactionType;
+  final TransactionType transactionType;
   final TransactionCategory category;
 
-  bool get isIncome => _transactionType == TransactionType.income;
-  bool get isExpence => _transactionType == TransactionType.expence;
+  bool get isIncome => transactionType == TransactionType.income;
+  bool get isExpence => transactionType == TransactionType.expence;
 
   /// ENCODE / DECODE ///
   Transaction.fromJson(JsonMap json)
@@ -73,7 +73,7 @@ class Transaction {
         amount = json["amount"] as int,
         timestamp =
             DateTime.tryParse(json["timestamp"] as String) ?? DateTime(1970),
-        _transactionType =
+        transactionType =
             TransactionTypeExtension.fromInt(json["transaction_type"] as int),
         category = TransactionCategory.fromJson(json);
 
@@ -82,7 +82,7 @@ class Transaction {
         // "name": name,
         "amount": amount,
         "timestamp": timestamp,
-        "transactionType": _transactionType.toInt,
+        "transactionType": transactionType.toInt,
         "type": category.toJson(),
       };
 
@@ -99,7 +99,7 @@ class Transaction {
         // name: name ?? this.name,
         amount: amount ?? this.amount,
         timestamp: timestamp ?? this.timestamp,
-        transactionType: _transactionType,
+        transactionType: transactionType,
         category: category ?? this.category,
       );
 
@@ -114,7 +114,7 @@ class Transaction {
 
   @override
   String toString() {
-    return "$_transactionType $uuid $amount $timestamp";
+    return "$transactionType $uuid $amount $timestamp";
   }
 }
 
@@ -133,7 +133,7 @@ class TransactionCategory {
         "name": name,
       };
 
-	/// COMPARE ///
+  /// COMPARE ///
   @override
   int get hashCode => id.hashCode;
 
