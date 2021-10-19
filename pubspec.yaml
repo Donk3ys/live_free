@@ -35,6 +35,7 @@ dependencies:
   flutter_riverpod: ^0.14.0+3
 
   # UI
+  currency_text_input_formatter: ^2.1.5
 
   # Util
   collection: ^1.15.0

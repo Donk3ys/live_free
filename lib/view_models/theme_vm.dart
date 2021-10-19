@@ -15,7 +15,8 @@ class ThemeViewModel extends ChangeNotifier {
         _mode = mode;
   ThemeMode _mode;
   ThemeMode get mode => _mode;
-  bool get isDarkMode => _mode == ThemeMode.dark;
+  //bool get isDarkMode => _mode == ThemeMode.dark;
+  bool get isDarkMode => true;
 
   Future<void> getThemeModeFromStorage() async {
     _mode = await _localDataSource.themeMode;
@@ -35,7 +36,7 @@ class ThemeViewModel extends ChangeNotifier {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        primary: kColorAccent,
+        primary: Colors.black87,
         onPrimary: Colors.white,
       ),
     ),

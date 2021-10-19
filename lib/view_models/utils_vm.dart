@@ -18,6 +18,7 @@ mixin ViewModelUtil {
     required BuildContext context,
     required Failure failure,
     bool logout = false,
+    bool showErrorSnackbar = true,
   }) async {
     String message = failure.toString();
     _logFailure(failure);
@@ -26,11 +27,13 @@ mixin ViewModelUtil {
     if (logout) {
       // If no user stored
       // context.read(authVMProvider).logout();
-      if (failure is! NoTokenFailure) InfoSnackBar.showError(context, message);
+      if (failure is! NoTokenFailure && showErrorSnackbar) {
+        InfoSnackBar.showError(context, message);
+      }
       return;
     }
     if (failure is AuthFailure) {
-      if (message != kMessageOfflineError) {
+      if (message != kMessageOfflineError && showErrorSnackbar) {
         InfoSnackBar.showError(context, message);
       }
       return;
@@ -39,7 +42,9 @@ mixin ViewModelUtil {
     // Check if failure could be offline failure due to timeout
     if (failure.toString().contains(kXMLHttpRequestError) ||
         failure is OfflineFailure) {
-      InfoSnackBar.showError(context, kConnectionErrorMessage);
+      if (showErrorSnackbar) {
+        InfoSnackBar.showError(context, kConnectionErrorMessage);
+      }
       final networkVM = context.read(networkVMProvider);
       networkVM.streamNetworkStatus();
       return;
@@ -53,9 +58,8 @@ mixin ViewModelUtil {
       message = kMessageUnexpectedFormatError;
     }
     if (failure is NoTokenFailure) return;
-    // if (failure is ServerFailure) message = kMessageUnexpectedServerError;
 
     // Show Error message
-    InfoSnackBar.showError(context, message);
+    if (showErrorSnackbar) InfoSnackBar.showError(context, message);
   }
 }

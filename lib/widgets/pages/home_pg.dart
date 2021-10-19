@@ -1,3 +1,5 @@
+import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -17,7 +19,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
-  late final FinanceViewModel _financeVm;
+  late final TransactionViewModel _transactionVm;
   late final NetworkViewModel _networkVm;
   late final ThemeViewModel _themeVm;
 
@@ -31,13 +33,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   void initState() {
-    _financeVm = context.read(financeVmProvider);
+    _transactionVm = context.read(transactionVmProvider);
     _networkVm = context.read(networkVMProvider);
     _themeVm = context.read(themeVMProvider);
 
     // Do after init build (So context will have scaffold for snackbar errors)
     WidgetsBinding.instance!.addPostFrameCallback((_) async {
-      _financeVm.fetchMonthTransactions(context);
+      _transactionVm.fetchExpenceCategoryList(context);
+      _transactionVm.fetchExpenceCategoryList(context);
+      _transactionVm.fetchMonthTransactions(context);
     });
 
     super.initState();
@@ -46,8 +50,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Consumer(
-      builder: (ctx, watch, child) {
-        watch(financeVmProvider);
+      builder: (context, watch, child) {
+        watch(transactionVmProvider);
         watch(themeVMProvider);
         watch(networkVMProvider);
 
@@ -70,13 +74,252 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 //               },
 //             ),
             floatingActionButton: FloatingActionButton(
-              onPressed: () => null,
+              onPressed: () => showModalBottomSheet<void>(
+                context: context,
+                builder: (BuildContext context) => _AddTransactionBottomModal(),
+              ),
               child: const Icon(Icons.add),
             ),
             bottomNavigationBar: const BottomNavBar(currentIndex: 0),
           ),
         );
       },
+    );
+  }
+}
+
+class _AddTransactionBottomModal extends StatefulWidget {
+  @override
+  State<_AddTransactionBottomModal> createState() =>
+      _AddTransactionBottomModalState();
+}
+
+class _AddTransactionBottomModalState
+    extends State<_AddTransactionBottomModal> {
+  TransactionType _transactionType = TransactionType.expence;
+  TransactionCategory? _selecteCategory;
+  double _selectedAmount = 0.0;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: double.infinity,
+      // color: Colors.amber,
+      child: Column(
+        children: [
+          const SizedBox(
+            width: 100.0,
+            child: Divider(
+              color: Colors.white,
+              thickness: 2.0,
+              height: 30.0,
+            ),
+          ),
+          Expanded(
+            child: _currentWidget(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _currentWidget() {
+    if (_selecteCategory == null) {
+      return _TransactionTypeSelector(
+        transactionType: _transactionType,
+        onSelected: (cat) => setState(() => _selecteCategory = cat),
+      );
+    } else if (_selectedAmount == 0.0) {
+      return _TransactionAmountSelector(
+        transactionType: _transactionType,
+        onSubmitted: (amount) => setState(() => _selectedAmount = amount),
+      );
+    } else {
+      return _TransactionSummary(
+        transactionType: _transactionType,
+        category: _selecteCategory!,
+        amount: _selectedAmount,
+      );
+    }
+  }
+}
+
+class _TransactionTypeSelector extends ConsumerWidget {
+  final Function(TransactionCategory) onSelected;
+  final TransactionType transactionType;
+
+  const _TransactionTypeSelector({
+    Key? key,
+    required this.onSelected,
+    required this.transactionType,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, ScopedReader watch) {
+    final transactionVm = watch(transactionVmProvider);
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: GridView.builder(
+        itemCount: transactionVm.expenceCategoryList.length,
+        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+          mainAxisSpacing: 4.0,
+          crossAxisSpacing: 4.0,
+          maxCrossAxisExtent: 100,
+        ),
+        itemBuilder: (context, index) {
+          final category = transactionVm.expenceCategoryList.elementAt(index);
+          return ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              primary: Colors.black87,
+              onPrimary: Colors.white,
+            ),
+            onPressed: () => onSelected(category),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Text(
+                  category.name,
+                  style: const TextStyle(fontSize: 12.0),
+                  textAlign: TextAlign.center,
+                ),
+                if (transactionVm.monthTransactionList.any(
+                  (trans) => trans.isExpence && trans.category == category,
+                ))
+                  const Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: CircleAvatar(
+                        radius: 3.0,
+                        backgroundColor: Colors.red,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _TransactionAmountSelector extends StatefulWidget {
+  final Function(double) onSubmitted;
+  final TransactionType transactionType;
+
+  const _TransactionAmountSelector({
+    Key? key,
+    required this.onSubmitted,
+    required this.transactionType,
+  }) : super(key: key);
+  @override
+  State<_TransactionAmountSelector> createState() =>
+      _TransactionAmountSelectorState();
+}
+
+class _TransactionAmountSelectorState
+    extends State<_TransactionAmountSelector> {
+  double _amount = 0.0;
+  final _amountStyle = const TextStyle(fontSize: 30.0);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: Row(
+          children: [
+            Text("R", style: _amountStyle),
+            const SizedBox(width: 20.0),
+            Expanded(
+              child: TextField(
+                onChanged: (amount) => setState(() {
+                  _amount = double.tryParse(amount) ?? 0.0;
+                  if (widget.transactionType.isIncome && _amount <= -0.01) {
+                    _amount = _amount * -1;
+                  }
+                  if (widget.transactionType.isExpence && _amount >= 0.01) {
+                    _amount = _amount * -1;
+                  }
+                }),
+                onSubmitted: (_) {
+                  if (_amount == 0.0) {
+                  } else {
+                    widget.onSubmitted(_amount);
+                  }
+                },
+                decoration: const InputDecoration(hintText: "0.00"),
+                style: _amountStyle,
+                textAlign: TextAlign.end,
+                inputFormatters: [CurrencyTextInputFormatter(symbol: "")],
+                keyboardType: TextInputType.number,
+                autofocus: true,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _TransactionSummary extends StatefulWidget {
+  final TransactionType transactionType;
+  final double amount;
+  final TransactionCategory category;
+
+  const _TransactionSummary({
+    Key? key,
+    required this.transactionType,
+    required this.category,
+    required this.amount,
+  }) : super(key: key);
+
+  @override
+  State<_TransactionSummary> createState() => _TransactionSummaryState();
+}
+
+class _TransactionSummaryState extends State<_TransactionSummary> {
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        children: [
+          Text("Category: ${widget.category.name}"),
+          Text("Amount: ${widget.amount}"),
+          const Text("Date: Today"),
+          Consumer(
+            builder: (context, watch, child) {
+              final transactionVm = watch(transactionVmProvider);
+              return ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.black87,
+                  onPrimary: Colors.white,
+                ),
+                onPressed: () => transactionVm.addTransaction(
+                  context,
+                  Transaction(
+                    uuid: (transactionVm.monthTransactionList.length + 1)
+                        .toString(),
+                    amount: (widget.amount * 100).round(),
+                    timestamp: DateTime.now(),
+                    transactionType: widget.transactionType,
+                    category: widget.category,
+                  ),
+                ),
+                child: const Text(
+                  "Submit",
+                  style: TextStyle(fontSize: 12.0),
+                  textAlign: TextAlign.center,
+                ),
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 }
@@ -94,9 +337,9 @@ class _MonthTransactionListView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ScopedReader watch) {
-    final financeVm = watch(financeVmProvider);
+    final transactionVm = watch(transactionVmProvider);
 
-    final transactionList = financeVm.monthTransactionList;
+    final transactionList = transactionVm.monthTransactionList;
     final total = _getTotal(transactionList);
 
     return SliverToBoxAdapter(
@@ -138,9 +381,9 @@ class _MonthTransactionListView extends ConsumerWidget {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(transaction.type.toString()),
+                              Text(transaction.category.name),
                               Text(
-                                "R ${(transaction.amount / 100).toStringAsFixed(2)}",
+                                (transaction.amount / 100).toStringAsFixed(2),
                                 style: TextStyle(
                                   color: transaction.isIncome
                                       ? kColorIncome

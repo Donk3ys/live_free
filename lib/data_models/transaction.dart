@@ -1,8 +1,49 @@
+import 'package:flutter/foundation.dart';
 import 'package:live_free/core/constants.dart';
+import 'package:live_free/core/util_core.dart';
 
 enum TransactionType { expence, income }
-enum IncomeType { other, salary, sale }
-enum ExpenceType { entertainment, food, gift, gas, rent }
+
+extension TransactionTypeExtension on TransactionType {
+  String get display => describeEnum(this).camelCaseToString.capitalizeFirst;
+  bool get isIncome => this == TransactionType.income;
+  bool get isExpence => this == TransactionType.expence;
+
+  static TransactionType fromString(String t) =>
+      TransactionType.values.firstWhere(
+        (v) => describeEnum(v) == t,
+        orElse: () => throw FormatException(
+          "No transaction type ${TransactionType.values.length} > & < 0",
+        ),
+      );
+
+  int get toInt {
+    late int rInt;
+    switch (this) {
+      case TransactionType.expence:
+        rInt = 0;
+        break;
+      case TransactionType.income:
+        rInt = 1;
+        break;
+    }
+
+    return rInt;
+  }
+
+  static TransactionType fromInt(int t) {
+    switch (t) {
+      case 0:
+        return TransactionType.expence;
+      case 1:
+        return TransactionType.income;
+      default:
+        throw FormatException(
+          "No transaction type ${TransactionType.values.length} > & < 0",
+        );
+    }
+  }
+}
 
 class Transaction {
   /// CONSTRUCT
@@ -12,7 +53,7 @@ class Transaction {
     required this.amount,
     required this.timestamp,
     required TransactionType transactionType,
-    required this.type,
+    required this.category,
   }) : _transactionType = transactionType;
 
   final String uuid;
@@ -20,7 +61,7 @@ class Transaction {
   final int amount;
   final DateTime timestamp;
   final TransactionType _transactionType;
-  final Enum type;
+  final TransactionCategory category;
 
   bool get isIncome => _transactionType == TransactionType.income;
   bool get isExpence => _transactionType == TransactionType.expence;
@@ -32,18 +73,17 @@ class Transaction {
         amount = json["amount"] as int,
         timestamp =
             DateTime.tryParse(json["timestamp"] as String) ?? DateTime(1970),
-        _transactionType = json["transaction_type"] as TransactionType,
-        type = json["transaction_type"] as int == 1
-            ? json["type"] as IncomeType
-            : json["type"] as ExpenceType;
+        _transactionType =
+            TransactionTypeExtension.fromInt(json["transaction_type"] as int),
+        category = TransactionCategory.fromJson(json);
 
   JsonMap toJson() => {
         "income_uuid": uuid,
         // "name": name,
         "amount": amount,
         "timestamp": timestamp,
-        "transactionType": _transactionType,
-        "type": type,
+        "transactionType": _transactionType.toInt,
+        "type": category.toJson(),
       };
 
   /// COPY ///
@@ -52,7 +92,7 @@ class Transaction {
     String? name,
     int? amount,
     DateTime? timestamp,
-    Enum? type,
+    TransactionCategory? category,
   }) =>
       Transaction(
         uuid: uuid ?? this.uuid,
@@ -60,13 +100,13 @@ class Transaction {
         amount: amount ?? this.amount,
         timestamp: timestamp ?? this.timestamp,
         transactionType: _transactionType,
-        type: type ?? this.type,
+        category: category ?? this.category,
       );
 
+  /// COMPARE ///
   @override
   int get hashCode => uuid.hashCode;
 
-  /// COMPARE ///
   @override
   bool operator ==(dynamic other) {
     return (other is Transaction) && other.uuid == uuid;
@@ -78,72 +118,27 @@ class Transaction {
   }
 }
 
+class TransactionCategory {
+  final int id;
+  final String name;
 
-// class IncomeTransaction extends Transaction {
-//   IncomeTransaction({
-//     required String uuid,
-//     // required String name,
-//     required int amount,
-//     required DateTime timestamp,
-//     required this.type,
-//   }) : super(
-//           uuid: uuid,
-//           // name: name,
-//           amount: amount,
-//           timestamp: timestamp,
-//           transactionType: TransactionType.income,
-//         );
-//
-//   final IncomeType type;
-//
-//   IncomeTransaction.fromJson(JsonMap json)
-//       : type = json["type"] as IncomeType,
-//         super.fromJson(json);
-//
-//   @override
-//   JsonMap toJson() {
-//     final JsonMap map = {
-//       "type": type,
-//     };
-//     map.addAll(super.toJson());
-//     return map;
-//   }
-//
-//   @override
-//   String toString() => "$type : ${super.toString()}";
-// }
-//
-//
-// class ExpenceTransaction extends Transaction {
-//   ExpenceTransaction({
-//     required String uuid,
-//     // required String name,
-//     required int amount,
-//     required DateTime timestamp,
-//     required this.type,
-//   }) : super(
-//           uuid: uuid,
-//           // name: name,
-//           amount: amount,
-//           timestamp: timestamp,
-//           transactionType: TransactionType.expence,
-//         );
-//
-//   final ExpenceType type;
-//
-//   ExpenceTransaction.fromJson(JsonMap json)
-//       : type = json["type"] as ExpenceType,
-//         super.fromJson(json);
-//
-//   @override
-//   JsonMap toJson() {
-//     final JsonMap map = {
-//       "type": type,
-//     };
-//     map.addAll(super.toJson());
-//     return map;
-//   }
-//
-//   @override
-//   String toString() => "$type : ${super.toString()}";
-// }
+  TransactionCategory({required this.id, required this.name});
+
+  TransactionCategory.fromJson(JsonMap json)
+      : id = json["id"] as int,
+        name = json["name"] as String;
+
+  JsonMap toJson() => {
+        "id": id,
+        "name": name,
+      };
+
+	/// COMPARE ///
+  @override
+  int get hashCode => id.hashCode;
+
+  @override
+  bool operator ==(dynamic other) {
+    return (other is TransactionCategory) && other.id == id;
+  }
+}

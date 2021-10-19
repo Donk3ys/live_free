@@ -32,7 +32,7 @@ Future<void> initInjector() async {
   // View Models
   sl.registerLazySingleton(() => NetworkViewModel(networkInfo: sl()));
   sl.registerLazySingleton(() => ThemeViewModel(localDataSource: sl()));
-  sl.registerLazySingleton(() => FinanceViewModel(financeRepository: sl()));
+  sl.registerLazySingleton(() => TransactionViewModel(financeRepository: sl()));
 
   // Repositories
   sl.registerLazySingleton(

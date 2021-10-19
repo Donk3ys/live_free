@@ -8,7 +8,7 @@ import 'package:live_free/widgets/pages/home_pg.dart';
 import 'package:vrouter/vrouter.dart';
 
 // Setup view model providers
-final financeVmProvider = ChangeNotifierProvider<FinanceViewModel>(
+final transactionVmProvider = ChangeNotifierProvider<TransactionViewModel>(
   (ref) => sl(),
 );
 final networkVMProvider = ChangeNotifierProvider<NetworkViewModel>(
