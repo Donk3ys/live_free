@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:live_free/core/constants.dart';
+import 'package:live_free/data_models/saving.dart';
 import 'package:live_free/data_models/transaction.dart';
 import 'package:live_free/service_locator.dart';
 import 'package:loggy/loggy.dart';
@@ -14,7 +15,8 @@ import '../core/success.dart';
 // const _currentUserKey = 'currentUser';
 const _jwtKey = 'jwt';
 const _refreshTokenKey = 'refreshToken';
-const _transactionHistoryKey = "transactionHistory";
+const _transactionHistoryKey = "transactionHistoryKey";
+const _savingListKey = "savingKey";
 const _themeKey = "theme";
 
 class LocalDataSource with UiLoggy {
@@ -35,7 +37,8 @@ class LocalDataSource with UiLoggy {
 
   Future<void> clearLocalStorage() async => _hiveBox.deleteFromDisk();
 
-  // THEME
+  // NOTE: theme
+
   Future<ThemeMode> get themeMode async {
     final theme = await _hiveBox.get(
       _themeKey,
@@ -54,7 +57,8 @@ class LocalDataSource with UiLoggy {
     return cacheSuccess;
   }
 
-  // TOKENS
+  // NOTE: json web token
+
   Future<String> get jwt async {
     // Get jwt
     var jwt = await _hiveBox.get(_jwtKey, defaultValue: "null") as String;
@@ -76,6 +80,8 @@ class LocalDataSource with UiLoggy {
     await _hiveBox.put(_jwtKey, jwt);
     return cacheSuccess;
   }
+
+  // NOTE: refresh token
 
   Future<String> get refreshToken async {
     // Get jwt
@@ -103,6 +109,8 @@ class LocalDataSource with UiLoggy {
     await _hiveBox.put(_refreshTokenKey, refreshToken);
     return cacheSuccess;
   }
+
+  // NOTE: transaction history
 
   Future<List<Transaction>> get transactionHistory async {
     // await _hiveBox.delete(_transactionHistoryKey);
@@ -150,6 +158,57 @@ class LocalDataSource with UiLoggy {
     transHistList.remove(transaction);
 
     await _storeTransactionList(transHistList);
+    return cacheSuccess;
+  }
+
+  // NOTE: savings
+
+  Future<List<Saving>> get savingList async {
+    // await _hiveBox.delete(_savingListKey);
+
+    final stringList = await _hiveBox.get(
+      _savingListKey,
+      defaultValue: "[]",
+    ) as String;
+
+    final jsonSavingList = jsonDecode(stringList) as List;
+    // loggy.info("[Saving List] : $jsonSavingList");
+
+    final savingList = jsonSavingList
+        .map((jsonSaving) => Saving.fromJson(jsonSaving as JsonMap))
+        .toList();
+
+    // loggy.info("[Saving List] : $savingList");
+    return savingList;
+  }
+
+  Future<void> _storeSavingList(List<Saving> sList) async {
+    final jsonList =
+        jsonEncode(sList.map((saving) => saving.toJson()).toList());
+
+    await _hiveBox.put(
+      _savingListKey,
+      jsonList,
+    );
+  }
+
+  Future<CacheSuccess> storeSaving(
+    Saving saving,
+  ) async {
+    final sList = await savingList;
+    sList.add(saving);
+
+    await _storeSavingList(sList);
+    return cacheSuccess;
+  }
+
+  Future<CacheSuccess> removeSaving(
+    Saving saving,
+  ) async {
+    final sList = await savingList;
+    sList.remove(saving);
+
+    await _storeSavingList(sList);
     return cacheSuccess;
   }
 

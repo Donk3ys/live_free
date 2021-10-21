@@ -8,6 +8,7 @@ import 'package:live_free/core/success.dart';
 import 'package:live_free/external_services/network_info.dart';
 import 'package:live_free/external_services/remote_finance_src.dart';
 import 'package:live_free/repositories/finance_repo.dart';
+import 'package:live_free/view_models/saving_vm.dart';
 import 'package:live_free/view_models/transaction_vm.dart';
 import 'package:loggy/loggy.dart';
 
@@ -22,6 +23,9 @@ final cacheSuccess = CacheSuccess();
 final serverSuccess = ServerSuccess();
 
 // NOTE: Change notifiers
+final savingVmProvider = ChangeNotifierProvider<SavingViewModel>(
+  (ref) => sl(),
+);
 final transactionVmProvider = ChangeNotifierProvider<TransactionViewModel>(
   (ref) => sl(),
 );
@@ -50,6 +54,7 @@ Future<void> initInjector() async {
   sl.registerLazySingleton(() => NetworkViewModel(networkInfo: sl()));
   sl.registerLazySingleton(() => ThemeViewModel(localDataSource: sl()));
   sl.registerLazySingleton(() => TransactionViewModel(financeRepository: sl()));
+  sl.registerLazySingleton(() => SavingViewModel(financeRepository: sl()));
 
   // NOTE: Repositories
   sl.registerLazySingleton(

@@ -68,7 +68,7 @@ class Transaction {
 
   /// ENCODE / DECODE ///
   factory Transaction.fromJson(JsonMap json) => Transaction(
-        uuid: json["income_uuid"] as String,
+        uuid: json["uuid"] as String,
         // name = json["name"] as String,
         amount: json["amount"] as int,
         timestamp:
@@ -79,7 +79,7 @@ class Transaction {
       );
 
   JsonMap toJson() => {
-        "income_uuid": uuid,
+        "uuid": uuid,
         // "name": name,
         "amount": amount,
         "timestamp": timestamp

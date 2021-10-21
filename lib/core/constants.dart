@@ -31,6 +31,7 @@ const kColorUpdate = Colors.blue;
 
 const kColorIncome = Colors.green;
 const kColorExpence = Colors.red;
+const kColorSaving = Colors.blue;
 
 const kColorSuccess = Colors.green;
 // const kColorSuccess = Color(0xff89b482);

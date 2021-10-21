@@ -1,3 +1,5 @@
+import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
+
 mixin UtilCore {
   static String getDateTimeDiffCompact(DateTime dateTime) {
     final difference = DateTime.now().difference(dateTime);
@@ -29,3 +31,13 @@ extension CapExtension on String {
         (Match m) => ' ${m.group(0) ?? ""}',
       );
 }
+
+String formatNumAmount(num amount) {
+  var formatAmount = amount;
+  if (amount is int) formatAmount = amount / 100;
+  return CurrencyTextInputFormatter(symbol: "R ")
+      .format(formatAmount.toStringAsFixed(2));
+}
+
+String formatStringAmount(String amount) =>
+    CurrencyTextInputFormatter(symbol: "R ").format(amount);

@@ -1,6 +1,7 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:live_free/core/constants.dart';
 import 'package:live_free/core/success.dart';
+import 'package:live_free/data_models/saving.dart';
 import 'package:live_free/data_models/transaction.dart';
 import 'package:live_free/external_services/local_data_src.dart';
 import 'package:live_free/external_services/remote_finance_src.dart';
@@ -28,6 +29,8 @@ class FinanceRepository with UiLoggy {
     }
   }
 
+  // NOTE: transactions
+
   FailOr<List<Transaction>> fetchTransactionHistory() async {
     try {
       final transHist = await _localDataSource.transactionHistory;
@@ -49,6 +52,35 @@ class FinanceRepository with UiLoggy {
   FailOr<Success> removeTransaction(Transaction transaction) async {
     try {
       final success = await _localDataSource.removeTransaction(transaction);
+      return right(success);
+    } catch (e, s) {
+      return left(await RepoUtil.handleException(e, s));
+    }
+  }
+
+  // NOTE: savings
+
+  FailOr<List<Saving>> fetchSavingList() async {
+    try {
+      final sList = await _localDataSource.savingList;
+      return right(sList);
+    } catch (e, s) {
+      return left(await RepoUtil.handleException(e, s));
+    }
+  }
+
+  FailOr<Success> addSaving(Saving saving) async {
+    try {
+      final success = await _localDataSource.storeSaving(saving);
+      return right(success);
+    } catch (e, s) {
+      return left(await RepoUtil.handleException(e, s));
+    }
+  }
+
+  FailOr<Success> removeSaving(Saving saving) async {
+    try {
+      final success = await _localDataSource.removeSaving(saving);
       return right(success);
     } catch (e, s) {
       return left(await RepoUtil.handleException(e, s));

@@ -34,8 +34,8 @@ class TransactionViewModel extends ChangeNotifier {
   bool get hasError => _state == _State.error;
 
   Future<void> fetchExpenceCategoryList(BuildContext context) async {
-    final failureOrUser = await _financeRepository.doSomething();
-    failureOrUser.fold(
+    final failureOrList = await _financeRepository.doSomething();
+    failureOrList.fold(
       (failure) {
         ViewModelUtil.handleFailure(
           context: context,
@@ -43,7 +43,7 @@ class TransactionViewModel extends ChangeNotifier {
           showErrorSnackbar: false,
         );
       },
-      (_) {
+      (list) {
         expenceCategoryList = [
           TransactionCategory(id: 1, name: "Loan Payment"),
           TransactionCategory(id: 2, name: "Food"),
@@ -67,8 +67,8 @@ class TransactionViewModel extends ChangeNotifier {
   }
 
   Future<void> fetchIncomeCategoryList(BuildContext context) async {
-    final failureOrUser = await _financeRepository.doSomething();
-    failureOrUser.fold(
+    final failureOrList = await _financeRepository.doSomething();
+    failureOrList.fold(
       (failure) {
         ViewModelUtil.handleFailure(
           context: context,
@@ -76,7 +76,7 @@ class TransactionViewModel extends ChangeNotifier {
           showErrorSnackbar: false,
         );
       },
-      (_) {
+      (list) {
         incomeCategoryList = [
           TransactionCategory(id: 0, name: "Other"),
           TransactionCategory(id: 1, name: "Salary"),
