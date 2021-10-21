@@ -42,4 +42,3 @@ class FormatFailure extends Failure {
 }
 
 class NoTokenFailure extends Failure {}
-

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:vrouter/vrouter.dart';
+import 'package:live_free/service_locator.dart';
 
 import '../../core/constants.dart';
-import '../../main.dart';
 import '../view_models/theme_vm.dart';
 
 class NavDrawer extends StatefulWidget {

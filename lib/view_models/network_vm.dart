@@ -33,4 +33,3 @@ class NetworkViewModel extends ChangeNotifier {
     } while (isOffline);
   }
 }
-

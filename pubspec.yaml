@@ -36,13 +36,14 @@ dependencies:
 
   # UI
   currency_text_input_formatter: ^2.1.5
+  numeric_keyboard: ^1.1.0
 
   # Util
   collection: ^1.15.0
   cupertino_icons: ^1.0.2
   fpdart: ^0.0.11
   intl: ^0.17.0
-  numeric_keyboard: ^1.1.0
+  uuid: ^3.0.5
 
 dev_dependencies:
   flutter_test:

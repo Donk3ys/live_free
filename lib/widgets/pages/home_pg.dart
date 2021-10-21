@@ -5,11 +5,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:live_free/core/constants.dart';
 import 'package:live_free/data_models/transaction.dart';
-import 'package:live_free/main.dart';
-import 'package:live_free/view_models/network_vm.dart';
-import 'package:live_free/view_models/theme_vm.dart';
+import 'package:live_free/service_locator.dart';
 import 'package:live_free/view_models/transaction_vm.dart';
 import 'package:numeric_keyboard/numeric_keyboard.dart';
+
+late TransactionViewModel _transactionVm;
+//   late final NetworkViewModel _networkVm;
+//   late final ThemeViewModel _themeVm;
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -19,10 +21,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
-  late final TransactionViewModel _transactionVm;
-  late final NetworkViewModel _networkVm;
-  late final ThemeViewModel _themeVm;
-
   final _scrollController = ScrollController();
 
   @override
@@ -34,8 +32,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   void initState() {
     _transactionVm = context.read(transactionVmProvider);
-    _networkVm = context.read(networkVMProvider);
-    _themeVm = context.read(themeVMProvider);
+//     _networkVm = context.read(networkVMProvider);
+//     _themeVm = context.read(themeVMProvider);
 
     // Do after init build (So context will have scaffold for snackbar errors)
     WidgetsBinding.instance!.addPostFrameCallback((_) async {
@@ -171,7 +169,6 @@ class _TransactionTypeSelector extends StatefulWidget {
 }
 
 class _TransactionTypeSelectorState extends State<_TransactionTypeSelector> {
-  late final TransactionViewModel _transactionVm;
   late TransactionType _transactionType;
   List<TransactionCategory> _transactionCategoryList = const [];
 
@@ -194,6 +191,7 @@ class _TransactionTypeSelectorState extends State<_TransactionTypeSelector> {
       if (_transactionVm.expenceCategoryList.isEmpty ||
           _transactionVm.incomeCategoryList.isEmpty) {
         await _transactionVm.fetchExpenceCategoryList(context);
+        if (!mounted) return;
         await _transactionVm.fetchIncomeCategoryList(context);
         _fetchCategoryList();
         setState(() {});
@@ -594,20 +592,26 @@ class _TransactionSummaryState extends State<_TransactionSummary> {
                   primary: Colors.amber,
                   onPrimary: Colors.black87,
                 ),
-                onPressed: () => transactionVm.addTransaction(
-                  context,
-                  Transaction(
-                    uuid: (transactionVm.monthTransactionList.length + 1)
-                        .toString(),
-                    amount: (widget.amount * 100).round(),
-                    timestamp: DateTime.now(),
-                    transactionType: widget.transactionType,
-                    category: widget.category,
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: const Text(
+                onPressed: () async {
+                  final success = await transactionVm.addTransaction(
+                    context,
+                    Transaction(
+                      uuid: (transactionVm.monthTransactionList.length + 1)
+                          .toString(),
+                      amount: (widget.amount * 100).round(),
+                      timestamp: DateTime.now(),
+                      transactionType: widget.transactionType,
+                      category: widget.category,
+                    ),
+                  );
+
+                  if (!success) return;
+                  if (!mounted) return;
+                  Navigator.of(context).pop();
+                },
+                child: const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text(
                     "Save",
                     style: TextStyle(fontSize: 30.0),
                     textAlign: TextAlign.center,

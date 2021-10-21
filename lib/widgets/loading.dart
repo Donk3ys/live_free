@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:live_free/service_locator.dart';
 import '../core/constants.dart';
-import '../main.dart';
 
 class SliverCircularLoading extends StatelessWidget {
   final bool hasBackground;
@@ -63,4 +63,3 @@ class LoadingWidget extends StatelessWidget {
     );
   }
 }
-

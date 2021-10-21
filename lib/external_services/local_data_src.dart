@@ -1,22 +1,27 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:live_free/core/constants.dart';
+import 'package:live_free/data_models/transaction.dart';
+import 'package:live_free/service_locator.dart';
 import 'package:loggy/loggy.dart';
 
 import '../core/exception.dart';
 import '../core/success.dart';
 
-const jwtKey = 'jwt';
-const refreshTokenKey = 'refreshToken';
-const currentUserKey = 'currentUser';
-
-const themeKey = "theme";
+// const _currentUserKey = 'currentUser';
+const _jwtKey = 'jwt';
+const _refreshTokenKey = 'refreshToken';
+const _transactionHistoryKey = "transactionHistory";
+const _themeKey = "theme";
 
 class LocalDataSource with UiLoggy {
-  final Box hiveBox;
+  final Box _hiveBox;
   //String _userUuid = "";
 
-  LocalDataSource(this.hiveBox);
+  LocalDataSource(Box hiveBox) : _hiveBox = hiveBox;
 
   // UTIL
 /*   Future<void> _getUserUuid() async {
@@ -28,12 +33,14 @@ class LocalDataSource with UiLoggy {
     }
   } */
 
-  Future<void> clearLocalStorage() async => hiveBox.deleteFromDisk();
+  Future<void> clearLocalStorage() async => _hiveBox.deleteFromDisk();
 
   // THEME
   Future<ThemeMode> get themeMode async {
-    final theme = await hiveBox.get(themeKey,
-        defaultValue: describeEnum(ThemeMode.system)) as String;
+    final theme = await _hiveBox.get(
+      _themeKey,
+      defaultValue: describeEnum(ThemeMode.system),
+    ) as String;
     // loggy.warning(theme);
     if (theme == describeEnum(ThemeMode.system)) return ThemeMode.system;
     return theme == describeEnum(ThemeMode.dark)
@@ -41,15 +48,16 @@ class LocalDataSource with UiLoggy {
         : ThemeMode.light;
   }
 
-  Future<void> setTheme(String theme) async {
+  Future<CacheSuccess> setTheme(String theme) async {
     //loggy.info("[STORING JWT] : $jwt");
-    await hiveBox.put(themeKey, theme);
+    await _hiveBox.put(_themeKey, theme);
+    return cacheSuccess;
   }
 
   // TOKENS
   Future<String> get jwt async {
     // Get jwt
-    var jwt = await hiveBox.get(jwtKey, defaultValue: "null") as String;
+    var jwt = await _hiveBox.get(_jwtKey, defaultValue: "null") as String;
 
     // Check jwt not null
     if (jwt == "null") {
@@ -63,10 +71,16 @@ class LocalDataSource with UiLoggy {
     return jwt;
   }
 
+  Future<Success> storeJwt(String jwt) async {
+    //loggy.info("[STORING JWT] : $jwt");
+    await _hiveBox.put(_jwtKey, jwt);
+    return cacheSuccess;
+  }
+
   Future<String> get refreshToken async {
     // Get jwt
     var refreshToken =
-        await hiveBox.get(refreshTokenKey, defaultValue: "null") as String;
+        await _hiveBox.get(_refreshTokenKey, defaultValue: "null") as String;
 
     // Check jwt not null
     if (refreshToken == "null") {
@@ -84,16 +98,59 @@ class LocalDataSource with UiLoggy {
     return refreshToken;
   }
 
-  Future<Success> storeJwt(String jwt) async {
-    //loggy.info("[STORING JWT] : $jwt");
-    await hiveBox.put(jwtKey, jwt);
-    return CacheSuccess();
+  Future<CacheSuccess> storeRefreshToken(String refreshToken) async {
+    // loggy.info("[STORING REFRESH TOKEN] : $refreshToken");
+    await _hiveBox.put(_refreshTokenKey, refreshToken);
+    return cacheSuccess;
   }
 
-  Future<Success> storeRefreshToken(String refreshToken) async {
-    // loggy.info("[STORING REFRESH TOKEN] : $refreshToken");
-    await hiveBox.put(refreshTokenKey, refreshToken);
-    return CacheSuccess();
+  Future<List<Transaction>> get transactionHistory async {
+    // await _hiveBox.delete(_transactionHistoryKey);
+
+    final stringList = await _hiveBox.get(
+      _transactionHistoryKey,
+      defaultValue: "[]",
+    ) as String;
+
+    final jsonTransHis = jsonDecode(stringList) as List;
+    // loggy.info("[Trans Hist] : $jsonTransHis");
+
+    final transHist = jsonTransHis
+        .map((jsonTrans) => Transaction.fromJson(jsonTrans as JsonMap))
+        .toList();
+
+    // loggy.info("[Trans Hist] : $transHist");
+    return transHist;
+  }
+
+  Future<void> _storeTransactionList(List<Transaction> transHistList) async {
+    final jsonList =
+        jsonEncode(transHistList.map((trans) => trans.toJson()).toList());
+
+    await _hiveBox.put(
+      _transactionHistoryKey,
+      jsonList,
+    );
+  }
+
+  Future<CacheSuccess> storeTransaction(
+    Transaction transaction,
+  ) async {
+    final transHistList = await transactionHistory;
+    transHistList.add(transaction);
+
+    await _storeTransactionList(transHistList);
+    return cacheSuccess;
+  }
+
+  Future<CacheSuccess> removeTransaction(
+    Transaction transaction,
+  ) async {
+    final transHistList = await transactionHistory;
+    transHistList.remove(transaction);
+
+    await _storeTransactionList(transHistList);
+    return cacheSuccess;
   }
 
   // USER

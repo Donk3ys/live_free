@@ -32,4 +32,3 @@ class FromJsonException implements Exception {
 }
 
 class NoTokenException implements Exception {}
-

@@ -1,7 +1,10 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:live_free/core/constants.dart';
+import 'package:live_free/core/success.dart';
+import 'package:live_free/data_models/transaction.dart';
 import 'package:live_free/external_services/local_data_src.dart';
 import 'package:live_free/external_services/remote_finance_src.dart';
+import 'package:live_free/service_locator.dart';
 import 'package:loggy/loggy.dart';
 
 import 'utils_repo.dart';
@@ -17,9 +20,36 @@ class FinanceRepository with UiLoggy {
         _remoteFinanceSource = remoteFinanceSource;
 
   // FULL FUNCTIONS
-  FailOr<Unit> doSomething() async {
+  FailOr<Success> doSomething() async {
     try {
-      return right(unit);
+      return right(cacheSuccess);
+    } catch (e, s) {
+      return left(await RepoUtil.handleException(e, s));
+    }
+  }
+
+  FailOr<List<Transaction>> fetchTransactionHistory() async {
+    try {
+      final transHist = await _localDataSource.transactionHistory;
+      return right(transHist);
+    } catch (e, s) {
+      return left(await RepoUtil.handleException(e, s));
+    }
+  }
+
+  FailOr<Success> addTransaction(Transaction transaction) async {
+    try {
+      final success = await _localDataSource.storeTransaction(transaction);
+      return right(success);
+    } catch (e, s) {
+      return left(await RepoUtil.handleException(e, s));
+    }
+  }
+
+  FailOr<Success> removeTransaction(Transaction transaction) async {
+    try {
+      final success = await _localDataSource.removeTransaction(transaction);
+      return right(success);
     } catch (e, s) {
       return left(await RepoUtil.handleException(e, s));
     }

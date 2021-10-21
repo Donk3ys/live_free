@@ -29,4 +29,3 @@ extension CapExtension on String {
         (Match m) => ' ${m.group(0) ?? ""}',
       );
 }
-

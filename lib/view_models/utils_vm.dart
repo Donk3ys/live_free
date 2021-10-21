@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:live_free/service_locator.dart';
 import 'package:loggy/loggy.dart';
 
 import '../core/constants.dart';
 import '../core/failure.dart';
-import '../main.dart';
 import '../widgets/snackbar.dart';
 
 final failureLogger = Loggy("Failure");

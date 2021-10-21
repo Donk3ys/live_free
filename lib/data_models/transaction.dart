@@ -67,23 +67,27 @@ class Transaction {
   bool get isExpence => transactionType == TransactionType.expence;
 
   /// ENCODE / DECODE ///
-  Transaction.fromJson(JsonMap json)
-      : uuid = json["income_uuid"] as String,
+  factory Transaction.fromJson(JsonMap json) => Transaction(
+        uuid: json["income_uuid"] as String,
         // name = json["name"] as String,
-        amount = json["amount"] as int,
-        timestamp =
+        amount: json["amount"] as int,
+        timestamp:
             DateTime.tryParse(json["timestamp"] as String) ?? DateTime(1970),
-        transactionType =
+        transactionType:
             TransactionTypeExtension.fromInt(json["transaction_type"] as int),
-        category = TransactionCategory.fromJson(json);
+        category: TransactionCategory.fromJson(json["category"] as JsonMap),
+      );
 
   JsonMap toJson() => {
         "income_uuid": uuid,
         // "name": name,
         "amount": amount,
-        "timestamp": timestamp,
-        "transactionType": transactionType.toInt,
-        "type": category.toJson(),
+        "timestamp": timestamp
+            .toUtc()
+            .toIso8601String()
+            .substring(0, timestamp.toUtc().toIso8601String().length - 1),
+        "transaction_type": transactionType.toInt,
+        "category": category.toJson(),
       };
 
   /// COPY ///

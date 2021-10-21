@@ -1,8 +1,10 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:live_free/core/success.dart';
 import 'package:live_free/external_services/network_info.dart';
 import 'package:live_free/external_services/remote_finance_src.dart';
 import 'package:live_free/repositories/finance_repo.dart';
@@ -15,6 +17,20 @@ import 'view_models/network_vm.dart';
 import 'view_models/theme_vm.dart';
 
 final sl = GetIt.instance;
+
+final cacheSuccess = CacheSuccess();
+final serverSuccess = ServerSuccess();
+
+// NOTE: Change notifiers
+final transactionVmProvider = ChangeNotifierProvider<TransactionViewModel>(
+  (ref) => sl(),
+);
+final networkVMProvider = ChangeNotifierProvider<NetworkViewModel>(
+  (ref) => sl(),
+);
+final themeVMProvider = ChangeNotifierProvider<ThemeViewModel>(
+  (ref) => sl(),
+);
 
 Future<void> initInjector() async {
   // Init .env
@@ -29,12 +45,13 @@ Future<void> initInjector() async {
     logPrinter: CustomLogPrinter(),
     //logOptions: const LogOptions(LogLevel.all, stackTraceLevel: LogLevel.off)
   );
-  // View Models
+
+  // NOTE: View Models
   sl.registerLazySingleton(() => NetworkViewModel(networkInfo: sl()));
   sl.registerLazySingleton(() => ThemeViewModel(localDataSource: sl()));
   sl.registerLazySingleton(() => TransactionViewModel(financeRepository: sl()));
 
-  // Repositories
+  // NOTE: Repositories
   sl.registerLazySingleton(
     () => FinanceRepository(
       localDataSource: sl(),
@@ -42,7 +59,7 @@ Future<void> initInjector() async {
     ),
   );
 
-  // Services
+  // NOTE: Services
   sl.registerLazySingleton<LocalDataSource>(() => LocalDataSource(_hiveBox));
   final apiUrl = dotenv.env["SERVER_API_URL"];
   if (apiUrl == null) throw Exception("Could not find SERVER_API_URL in .env");
@@ -53,7 +70,7 @@ Future<void> initInjector() async {
     () => NetworkInfo(sl()),
   );
 
-  // External
+  // NOTE: External
   sl.registerLazySingleton<Client>(() => Client());
   sl.registerLazySingleton<InternetConnectionChecker>(
     () => InternetConnectionChecker(),

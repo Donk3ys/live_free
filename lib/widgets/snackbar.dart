@@ -98,4 +98,3 @@ mixin InfoSnackBar {
     }
   }
 }
-

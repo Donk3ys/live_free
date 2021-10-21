@@ -27,4 +27,3 @@ class CacheSuccess extends Success {
     return "CacheSuccess: $message";
   }
 }
-

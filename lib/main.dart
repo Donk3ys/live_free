@@ -1,22 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:live_free/service_locator.dart';
-import 'package:live_free/view_models/network_vm.dart';
 import 'package:live_free/view_models/theme_vm.dart';
-import 'package:live_free/view_models/transaction_vm.dart';
 import 'package:live_free/widgets/pages/home_pg.dart';
 import 'package:vrouter/vrouter.dart';
-
-// Setup view model providers
-final transactionVmProvider = ChangeNotifierProvider<TransactionViewModel>(
-  (ref) => sl(),
-);
-final networkVMProvider = ChangeNotifierProvider<NetworkViewModel>(
-  (ref) => sl(),
-);
-final themeVMProvider = ChangeNotifierProvider<ThemeViewModel>(
-  (ref) => sl(),
-);
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
