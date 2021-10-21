@@ -67,3 +67,61 @@ class _AmountKeypadState extends State<AmountKeypad> {
     );
   }
 }
+
+class AmountSelector extends StatefulWidget {
+  final Function(int) onSubmitted;
+  final Function() onBackButtonPressed;
+  final String title;
+  final Color color;
+
+  const AmountSelector({
+    Key? key,
+    required this.onSubmitted,
+    required this.onBackButtonPressed,
+    required this.title,
+    required this.color,
+  }) : super(key: key);
+  @override
+  State<AmountSelector> createState() => _AmountSelectorState();
+}
+
+class _AmountSelectorState extends State<AmountSelector> {
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: Column(
+          children: [
+            Row(
+              children: [
+                IconButton(
+                  onPressed: () => widget.onBackButtonPressed(),
+                  icon: const Icon(Icons.arrow_back_ios_new),
+                ),
+                Expanded(
+                  child: Text(
+                    widget.title,
+                    style: TextStyle(
+                      fontSize: 30.0,
+                      fontWeight: FontWeight.bold,
+                      color: widget.color,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(width: 48.0),
+              ],
+            ),
+            const SizedBox(height: 12.0),
+            AmountKeypad(
+              onSubmitted: widget.onSubmitted,
+              textColor: widget.color,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

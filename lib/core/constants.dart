@@ -23,7 +23,7 @@ const kColorButton = Color(0xff383838);
 const kColorCardDark = Color(0xff272727);
 const kColorCardLight = Color(0xfff8f8f8);
 
-const kColorAccent = Colors.green;
+const kColorAccent = Colors.amber;
 
 const kColorAdd = Colors.green;
 const kColorRemove = Colors.red;

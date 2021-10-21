@@ -58,11 +58,11 @@ class _AddTransactionBottomModalState extends State<AddTransactionBottomModal> {
         onSelected: (cat) => setState(() => _selecteCategory = cat),
       );
     } else if (_selectedAmount == 0) {
-      return _TransactionAmountSelector(
-        transactionCategory: _selecteCategory!,
-        transactionType: _transactionType,
+      return AmountSelector(
         onBackButtonPressed: () => setState(() => _selecteCategory = null),
         onSubmitted: (amount) => setState(() => _selectedAmount = amount),
+        title: _selecteCategory!.name,
+        color: _transactionType.isExpence ? kColorExpence : kColorIncome,
       );
     } else {
       return _TransactionSummary(
@@ -244,70 +244,6 @@ class _TransactionTypeSelectorState extends State<_TransactionTypeSelector> {
           ],
         );
       },
-    );
-  }
-}
-
-class _TransactionAmountSelector extends StatefulWidget {
-  final Function(int) onSubmitted;
-  final Function() onBackButtonPressed;
-  final TransactionType transactionType;
-  final TransactionCategory transactionCategory;
-
-  const _TransactionAmountSelector({
-    Key? key,
-    required this.onSubmitted,
-    required this.onBackButtonPressed,
-    required this.transactionType,
-    required this.transactionCategory,
-  }) : super(key: key);
-  @override
-  State<_TransactionAmountSelector> createState() =>
-      _TransactionAmountSelectorState();
-}
-
-class _TransactionAmountSelectorState
-    extends State<_TransactionAmountSelector> {
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Align(
-        alignment: Alignment.topCenter,
-        child: Column(
-          children: [
-            Row(
-              children: [
-                IconButton(
-                  onPressed: () => widget.onBackButtonPressed(),
-                  icon: const Icon(Icons.arrow_back_ios_new),
-                ),
-                Expanded(
-                  child: Text(
-                    widget.transactionCategory.name,
-                    style: TextStyle(
-                      fontSize: 30.0,
-                      fontWeight: FontWeight.bold,
-                      color: widget.transactionType.isExpence
-                          ? kColorExpence
-                          : kColorIncome,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                const SizedBox(width: 48.0),
-              ],
-            ),
-            const SizedBox(height: 12.0),
-            AmountKeypad(
-              onSubmitted: widget.onSubmitted,
-              textColor: widget.transactionType.isExpence
-                  ? kColorExpence
-                  : kColorIncome,
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

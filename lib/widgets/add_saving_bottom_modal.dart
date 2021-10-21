@@ -21,7 +21,6 @@ class _AddSavingBottomModalState extends State<AddSavingBottomModal> {
 
   @override
   void initState() {
-    // Do after init build (So context will have scaffold for snackbar errors)
     WidgetsBinding.instance!.addPostFrameCallback((_) async {});
     super.initState();
   }
@@ -55,9 +54,11 @@ class _AddSavingBottomModalState extends State<AddSavingBottomModal> {
         onNameCreated: (name) => setState(() => _selectedName = name),
       );
     } else if (_selectedAmount == 0) {
-      return _SavingAmountSelector(
+      return AmountSelector(
         onBackButtonPressed: () => setState(() => _selectedName = ""),
         onSubmitted: (amount) => setState(() => _selectedAmount = amount),
+        title: "How Much?",
+        color: kColorSaving,
       );
     } else {
       return _SavingSummary(
@@ -136,60 +137,6 @@ class _SavingNameInputState extends State<_SavingNameInput> {
           ),
         );
       },
-    );
-  }
-}
-
-class _SavingAmountSelector extends StatefulWidget {
-  final Function(int) onSubmitted;
-  final Function() onBackButtonPressed;
-
-  const _SavingAmountSelector({
-    Key? key,
-    required this.onSubmitted,
-    required this.onBackButtonPressed,
-  }) : super(key: key);
-  @override
-  State<_SavingAmountSelector> createState() => _SavingAmountSelectorState();
-}
-
-class _SavingAmountSelectorState extends State<_SavingAmountSelector> {
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Align(
-        alignment: Alignment.topCenter,
-        child: Column(
-          children: [
-            Row(
-              children: [
-                IconButton(
-                  onPressed: () => widget.onBackButtonPressed(),
-                  icon: const Icon(Icons.arrow_back_ios_new),
-                ),
-                const Expanded(
-                  child: Text(
-                    "How much?",
-                    style: TextStyle(
-                      fontSize: 30.0,
-                      fontWeight: FontWeight.bold,
-                      color: kColorSaving,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                const SizedBox(width: 48.0),
-              ],
-            ),
-            const SizedBox(height: 12.0),
-            AmountKeypad(
-              onSubmitted: widget.onSubmitted,
-              textColor: kColorSaving,
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
