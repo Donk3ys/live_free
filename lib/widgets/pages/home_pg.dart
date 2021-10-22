@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -5,13 +7,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:live_free/core/constants.dart';
 import 'package:live_free/core/util_core.dart';
-import 'package:live_free/data_models/saving.dart';
 import 'package:live_free/data_models/transaction.dart';
 import 'package:live_free/service_locator.dart';
 import 'package:live_free/view_models/saving_vm.dart';
 import 'package:live_free/view_models/transaction_vm.dart';
 import 'package:live_free/widgets/add_saving_bottom_modal.dart';
 import 'package:live_free/widgets/add_transaction_bottom_modal.dart';
+import 'package:live_free/widgets/dialog.dart';
 import 'package:live_free/widgets/loading.dart';
 
 final TransactionViewModel _transactionVm = sl();
@@ -169,16 +171,31 @@ class _MonthTransactionListView extends ConsumerWidget {
                 const LoadingWidget()
               else
                 ListView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
                   itemCount: transactionList.length,
                   itemBuilder: (BuildContext context, int index) {
                     final transaction = transactionList.elementAt(index);
+
                     return Card(
                       child: InkWell(
-                        onLongPress: () => _transactionVm.removeTransaction(
-                          context,
-                          transaction,
-                        ),
+                        onLongPress: () async {
+                          final confirmDel = await showDialog(
+                            context: context,
+                            builder: (ctx) => ConfirmDeleteDialog(
+                              bodyText:
+                                  "${transaction.category.name} : ${formatNumAmount(transaction.amount)}",
+                            ),
+                          ) as bool?;
+
+                          // if (!mounted) return;
+                          if (confirmDel != null && confirmDel) {
+                            _transactionVm.removeTransaction(
+                              context,
+                              transaction,
+                            );
+                          }
+                        },
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Column(
@@ -279,14 +296,27 @@ class _SavingsListView extends ConsumerWidget {
                 const LoadingWidget()
               else
                 ListView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
                   itemCount: savingList.length,
                   itemBuilder: (BuildContext context, int index) {
                     final saving = savingList.elementAt(index);
                     return Card(
                       child: InkWell(
-                        onLongPress: () =>
-                            _savingVm.removeSaving(context, saving),
+                        onLongPress: () async {
+                          final confirmDel = await showDialog(
+                            context: context,
+                            builder: (ctx) => ConfirmDeleteDialog(
+                              bodyText:
+                                  "${saving.name} : ${formatNumAmount(saving.amount)}",
+                            ),
+                          ) as bool?;
+
+                          // if (!mounted) return;
+                          if (confirmDel != null && confirmDel) {
+                            _savingVm.removeSaving(context, saving);
+                          }
+                        },
                         // transactionVm.removeTransaction(context, transaction),
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),

@@ -152,6 +152,9 @@ class TransactionViewModel extends ChangeNotifier {
       },
       (list) {
         monthTransactionList = list;
+
+        // Sort by date
+        monthTransactionList.sort((a, b) => b.timestamp.compareTo(a.timestamp));
       },
     );
 
@@ -179,6 +182,8 @@ class TransactionViewModel extends ChangeNotifier {
       },
       (_) {
         monthTransactionList.add(newTransaction);
+        // Sort by date
+        monthTransactionList.sort((a, b) => b.timestamp.compareTo(a.timestamp));
         success = true;
       },
     );
