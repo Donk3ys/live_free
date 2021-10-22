@@ -33,6 +33,52 @@ class TransactionViewModel extends ChangeNotifier {
   bool get isRemovingTransaction => _state == _State.removingTransaction;
   bool get hasError => _state == _State.error;
 
+  // TODO: change to projected expence
+  int get totalMonthExpence {
+    int totalExpence = 0;
+    for (final trans in monthTransactionList) {
+      if (trans.isExpence) totalExpence += trans.amount;
+    }
+    return totalExpence;
+  }
+
+  int get target6MEF => totalMonthExpence * -6;
+  int get targetLiveFree => totalMonthExpence * -12 * 25;
+
+  int current6MEF(int totalSavings) {
+    int current6MEF = totalSavings;
+    if (totalSavings > target6MEF) current6MEF = target6MEF;
+    return current6MEF;
+  }
+
+  int currentLiveFree(int totalSavings) {
+    int currentLF = 0;
+    if (totalSavings > target6MEF) {
+      currentLF = totalSavings - current6MEF(totalSavings);
+    }
+    return currentLF;
+  }
+
+  // TODO: calc properly
+  String timeToTarget6MEF(int totalSavings) {
+    final diff = target6MEF - current6MEF(totalSavings);
+    if (diff <= 0) return "DONE!!!!";
+    final months = (diff / totalMonthExpence).ceil();
+    String timeLeft = "$months months";
+    if (months >= 12) timeLeft = "${(months / 12).toStringAsFixed(1)} years";
+    return timeLeft;
+  }
+
+  // TODO: calc properly
+  String timeToTargetLF(int totalSavings) {
+    final diff = targetLiveFree - currentLiveFree(totalSavings);
+    if (diff <= 0) return "DONE!!!!";
+    final months = (diff / -totalMonthExpence).ceil() + 1;
+    String timeLeft = "$months months";
+    if (months >= 12) timeLeft = "${(months / 12).toStringAsFixed(1)} years";
+    return timeLeft;
+  }
+
   Future<void> fetchExpenceCategoryList(BuildContext context) async {
     final failureOrList = await _financeRepository.doSomething();
     failureOrList.fold(
@@ -106,33 +152,10 @@ class TransactionViewModel extends ChangeNotifier {
       },
       (list) {
         monthTransactionList = list;
-//         monthTransactionList = [
-//           Transaction(
-//             uuid: "1",
-//             amount: 2000000,
-//             timestamp: DateTime.now(),
-//             transactionType: TransactionType.income,
-//             category: TransactionCategory(id: 1, name: "Salary"),
-//           ),
-//           Transaction(
-//             uuid: "2",
-//             amount: -600000,
-//             timestamp: DateTime.now(),
-//             transactionType: TransactionType.expence,
-//             category: TransactionCategory(id: 3, name: "Rent"),
-//           ),
-//           Transaction(
-//             uuid: "3",
-//             amount: -40000,
-//             timestamp: DateTime.now(),
-//             transactionType: TransactionType.expence,
-//             category: TransactionCategory(id: 0, name: "Gas"),
-//           ),
-//         ];
       },
     );
 
-    // await Future.delayed(const Duration(milliseconds: 1000));
+    await Future.delayed(const Duration(milliseconds: 1000));
     _setState(_State.idle);
   }
 

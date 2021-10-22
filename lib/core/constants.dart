@@ -23,14 +23,14 @@ const kColorButton = Color(0xff383838);
 const kColorCardDark = Color(0xff272727);
 const kColorCardLight = Color(0xfff8f8f8);
 
-const kColorAccent = Colors.amber;
+const kColorAccent = Colors.amberAccent;
 
 const kColorAdd = Colors.green;
 const kColorRemove = Colors.red;
 const kColorUpdate = Colors.blue;
 
 const kColorIncome = Colors.green;
-const kColorExpence = Colors.red;
+const kColorExpence = Colors.redAccent;
 const kColorSaving = Colors.blue;
 
 const kColorSuccess = Colors.green;

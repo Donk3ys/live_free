@@ -12,6 +12,7 @@ import 'package:live_free/view_models/saving_vm.dart';
 import 'package:live_free/view_models/transaction_vm.dart';
 import 'package:live_free/widgets/add_saving_bottom_modal.dart';
 import 'package:live_free/widgets/add_transaction_bottom_modal.dart';
+import 'package:live_free/widgets/loading.dart';
 
 final TransactionViewModel _transactionVm = sl();
 final SavingViewModel _savingVm = sl();
@@ -57,15 +58,47 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         watch(themeVMProvider);
         watch(networkVMProvider);
 
+        final _totalSavings = _savingVm.totalSavings;
         // final themeVM = watch(themeVMProvider);
         return SafeArea(
           child: Scaffold(
             body: CustomScrollView(
               controller: _scrollController,
               physics: const AlwaysScrollableScrollPhysics(),
-              slivers: const [
-                _SavingsListView(),
-                _MonthTransactionListView(),
+              slivers: [
+                const _SavingsListView(),
+                const _MonthTransactionListView(),
+                SliverToBoxAdapter(
+                  child: Text(
+                    "Target E6EF: ${formatNumAmount(_transactionVm.target6MEF)}",
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: Text(
+                    "Current E6EF: ${formatNumAmount(_transactionVm.current6MEF(_totalSavings))}",
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: Text(
+                    "Time to E6EF: ${_transactionVm.timeToTarget6MEF(_totalSavings)}",
+                  ),
+                ),
+                const SliverToBoxAdapter(child: SizedBox(height: 20.0)),
+                SliverToBoxAdapter(
+                  child: Text(
+                    "Target Live Free: ${formatNumAmount(_transactionVm.targetLiveFree)}",
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: Text(
+                    "Current Live Free: ${formatNumAmount(_transactionVm.currentLiveFree(_totalSavings))}",
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: Text(
+                    "Time to E6EF: ${_transactionVm.timeToTargetLF(_totalSavings)}",
+                  ),
+                ),
               ],
             ),
 //             bottomSheet: BottomSheet(
@@ -132,49 +165,53 @@ class _MonthTransactionListView extends ConsumerWidget {
                   ],
                 ),
               ),
-              ListView.builder(
-                shrinkWrap: true,
-                itemCount: transactionList.length,
-                itemBuilder: (BuildContext context, int index) {
-                  final transaction = transactionList.elementAt(index);
-                  return Card(
-                    child: InkWell(
-                      onLongPress: () => _transactionVm.removeTransaction(
-                        context,
-                        transaction,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(transaction.category.name),
-                                Text(
-                                  formatNumAmount(transaction.amount),
-                                  style: TextStyle(
-                                    color: transaction.isIncome
-                                        ? kColorIncome
-                                        : kColorExpence,
+              if (_transactionVm.isFetchingTransactions)
+                const LoadingWidget()
+              else
+                ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: transactionList.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    final transaction = transactionList.elementAt(index);
+                    return Card(
+                      child: InkWell(
+                        onLongPress: () => _transactionVm.removeTransaction(
+                          context,
+                          transaction,
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(transaction.category.name),
+                                  Text(
+                                    formatNumAmount(transaction.amount),
+                                    style: TextStyle(
+                                      color: transaction.isIncome
+                                          ? kColorIncome
+                                          : kColorExpence,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 4.0),
-                            Text(
-                              DateFormat("EEE d/M/y")
-                                  .format(transaction.timestamp),
-                              style: kTextStyleSmallSecondary,
-                            ),
-                          ],
+                                ],
+                              ),
+                              const SizedBox(height: 4.0),
+                              Text(
+                                DateFormat("EEE d/M/y")
+                                    .format(transaction.timestamp),
+                                style: kTextStyleSmallSecondary,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  );
-                },
-              ),
+                    );
+                  },
+                ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
@@ -192,14 +229,6 @@ class _MonthTransactionListView extends ConsumerWidget {
 
 class _SavingsListView extends ConsumerWidget {
   const _SavingsListView({Key? key}) : super(key: key);
-
-  int _getTotal(List<Saving> items) {
-    int total = 0;
-    for (final item in items) {
-      total = total + item.amount;
-    }
-    return total;
-  }
 
   @override
   Widget build(BuildContext context, ScopedReader watch) {
@@ -246,44 +275,48 @@ class _SavingsListView extends ConsumerWidget {
                   ],
                 ),
               ),
-              ListView.builder(
-                shrinkWrap: true,
-                itemCount: savingList.length,
-                itemBuilder: (BuildContext context, int index) {
-                  final saving = savingList.elementAt(index);
-                  return Card(
-                    child: InkWell(
-                      onLongPress: () =>
-                          _savingVm.removeSaving(context, saving),
-                      // transactionVm.removeTransaction(context, transaction),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(saving.name),
-                                Text(
-                                  formatNumAmount(saving.amount),
-                                  style: const TextStyle(
-                                    color: kColorSaving,
+              if (_savingVm.isFetchingSaving)
+                const LoadingWidget()
+              else
+                ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: savingList.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    final saving = savingList.elementAt(index);
+                    return Card(
+                      child: InkWell(
+                        onLongPress: () =>
+                            _savingVm.removeSaving(context, saving),
+                        // transactionVm.removeTransaction(context, transaction),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(saving.name),
+                                  Text(
+                                    formatNumAmount(saving.amount),
+                                    style: const TextStyle(
+                                      color: kColorSaving,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  );
-                },
-              ),
+                    );
+                  },
+                ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  formatNumAmount(_getTotal(savingList)),
+                  formatNumAmount(_savingVm.totalSavings),
                   style: kTextStyleSubHeading,
                 ),
               ),

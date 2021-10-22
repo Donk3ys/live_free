@@ -60,7 +60,10 @@ class _AddTransactionBottomModalState extends State<AddTransactionBottomModal> {
     } else if (_selectedAmount == 0) {
       return AmountSelector(
         onBackButtonPressed: () => setState(() => _selecteCategory = null),
-        onSubmitted: (amount) => setState(() => _selectedAmount = amount),
+        onSubmitted: (amount) => setState(
+          () =>
+              _selectedAmount = setAmountSignToTypee(amount, _transactionType),
+        ),
         title: _selecteCategory!.name,
         color: _transactionType.isExpence ? kColorExpence : kColorIncome,
       );

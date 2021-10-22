@@ -25,6 +25,14 @@ class SavingViewModel extends ChangeNotifier {
   bool get isRemovingSaving => _state == _State.removingSaving;
   bool get hasError => _state == _State.error;
 
+  int get totalSavings {
+    int total = 0;
+    for (final saving in savingList) {
+      total = total + saving.amount;
+    }
+    return total;
+  }
+
   Future<void> fetchSavingList(BuildContext context) async {
     _setState(_State.fetchingSaving);
 
@@ -41,7 +49,7 @@ class SavingViewModel extends ChangeNotifier {
       },
     );
 
-    // await Future.delayed(const Duration(milliseconds: 1000));
+    await Future.delayed(const Duration(milliseconds: 1000));
     _setState(_State.idle);
   }
 

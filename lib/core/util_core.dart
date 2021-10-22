@@ -1,4 +1,5 @@
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
+import 'package:live_free/data_models/transaction.dart';
 
 mixin UtilCore {
   static String getDateTimeDiffCompact(DateTime dateTime) {
@@ -41,3 +42,10 @@ String formatNumAmount(num amount) {
 
 String formatStringAmount(String amount) =>
     CurrencyTextInputFormatter(symbol: "R ").format(amount);
+
+int setAmountSignToTypee(int amount, TransactionType type) {
+  int signedAmount = amount;
+  if (type.isIncome && amount < 0) signedAmount = amount * -1;
+  if (type.isExpence && amount > 0) signedAmount = amount * -1;
+  return signedAmount;
+}
