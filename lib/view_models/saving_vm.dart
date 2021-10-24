@@ -33,21 +33,13 @@ class SavingViewModel extends ChangeNotifier {
     return total;
   }
 
-  Future<void> fetchSavingList(BuildContext context) async {
-    try {
-      _setState(_State.fetchingSaving);
-      savingList = await _financeRepository.fetchSavingList();
-    } catch (e, s) {
-      ViewModelUtil.handleException(
-        e,
-        s,
-        context: context,
-      );
-    }
-
-    await Future.delayed(const Duration(milliseconds: 1000));
-    _setState(_State.idle);
-  }
+  Future<void> fetchSavingList(
+    BuildContext context,
+  ) async =>
+      _makeCall(context, () async {
+        _setState(_State.fetchingSaving);
+        savingList = await _financeRepository.fetchSavingList();
+      });
 
   Future<bool> addSaving(
     BuildContext context,
@@ -77,12 +69,18 @@ class SavingViewModel extends ChangeNotifier {
   Future<void> removeSaving(
     BuildContext context,
     Saving saving,
-  ) async {
-    try {
-      _setState(_State.removingSaving);
+  ) async =>
+      _makeCall(context, () async {
+        _setState(_State.removingSaving);
 
-      await _financeRepository.removeSaving(saving);
-      savingList.remove(saving);
+        await _financeRepository.removeSaving(saving);
+        savingList.remove(saving);
+      });
+
+  // NOTE: wrapper for return void
+  Future<void> _makeCall(BuildContext context, Function call) async {
+    try {
+      call();
     } catch (e, s) {
       ViewModelUtil.handleException(
         e,
@@ -90,7 +88,7 @@ class SavingViewModel extends ChangeNotifier {
         context: context,
       );
     }
-    // await Future.delayed(const Duration(milliseconds: 1000));
+    //await Future.delayed(const Duration(milliseconds: 1000));
     _setState(_State.idle);
   }
 }
