@@ -80,83 +80,79 @@ class TransactionViewModel extends ChangeNotifier {
   }
 
   Future<void> fetchExpenceCategoryList(BuildContext context) async {
-    final failureOrList = await _financeRepository.doSomething();
-    failureOrList.fold(
-      (failure) {
-        ViewModelUtil.handleFailure(
-          context: context,
-          failure: failure,
-          showErrorSnackbar: false,
-        );
-      },
-      (list) {
-        expenceCategoryList = [
-          TransactionCategory(id: 1, name: "Loan Payment"),
-          TransactionCategory(id: 2, name: "Food"),
-          TransactionCategory(id: 3, name: "Rent"),
-          TransactionCategory(id: 4, name: "Medical"),
-          TransactionCategory(id: 5, name: "Personal Care"),
-          TransactionCategory(id: 6, name: "Gas"),
-          TransactionCategory(id: 9, name: "Travel"),
-          TransactionCategory(id: 10, name: "Gifts"),
-          TransactionCategory(id: 11, name: "Entertain"),
-          TransactionCategory(id: 12, name: "Education"),
-          TransactionCategory(id: 13, name: "Other"),
-        ];
+    try {
+      final list = await _financeRepository.doSomething();
+      expenceCategoryList = [
+        TransactionCategory(id: 1, name: "Loan Payment"),
+        TransactionCategory(id: 2, name: "Food"),
+        TransactionCategory(id: 3, name: "Rent"),
+        TransactionCategory(id: 4, name: "Medical"),
+        TransactionCategory(id: 5, name: "Personal Care"),
+        TransactionCategory(id: 6, name: "Gas"),
+        TransactionCategory(id: 9, name: "Travel"),
+        TransactionCategory(id: 10, name: "Gifts"),
+        TransactionCategory(id: 11, name: "Entertain"),
+        TransactionCategory(id: 12, name: "Education"),
+        TransactionCategory(id: 13, name: "Other"),
+      ];
 
-        // Sort list
-        expenceCategoryList.sort((a, b) => a.name.compareTo(b.name));
-      },
-    );
+      // Sort list
+      expenceCategoryList.sort((a, b) => a.name.compareTo(b.name));
+    } catch (e, s) {
+      ViewModelUtil.handleException(
+        e,
+        s,
+        context: context,
+        showErrorSnackbar: false,
+      );
+    }
+
     await Future.delayed(const Duration(milliseconds: 1000));
     _setState(_State.idle);
   }
 
   Future<void> fetchIncomeCategoryList(BuildContext context) async {
-    final failureOrList = await _financeRepository.doSomething();
-    failureOrList.fold(
-      (failure) {
-        ViewModelUtil.handleFailure(
-          context: context,
-          failure: failure,
-          showErrorSnackbar: false,
-        );
-      },
-      (list) {
-        incomeCategoryList = [
-          TransactionCategory(id: 0, name: "Other"),
-          TransactionCategory(id: 1, name: "Salary"),
-          TransactionCategory(id: 2, name: "Sale"),
-          TransactionCategory(id: 3, name: "Gift"),
-          TransactionCategory(id: 4, name: "Rent"),
-          TransactionCategory(id: 5, name: "Bonus"),
-        ];
-        // Sort list
-        incomeCategoryList.sort((a, b) => a.name.compareTo(b.name));
-      },
-    );
+    try {
+      final list = await _financeRepository.doSomething();
+      incomeCategoryList = [
+        TransactionCategory(id: 0, name: "Other"),
+        TransactionCategory(id: 1, name: "Salary"),
+        TransactionCategory(id: 2, name: "Sale"),
+        TransactionCategory(id: 3, name: "Gift"),
+        TransactionCategory(id: 4, name: "Rent"),
+        TransactionCategory(id: 5, name: "Bonus"),
+      ];
+      // Sort list
+      incomeCategoryList.sort((a, b) => a.name.compareTo(b.name));
+    } catch (e, s) {
+      ViewModelUtil.handleException(
+        e,
+        s,
+        context: context,
+        showErrorSnackbar: false,
+      );
+    }
+
     await Future.delayed(const Duration(milliseconds: 1000));
     _setState(_State.idle);
   }
 
   Future<void> fetchMonthTransactions(BuildContext context) async {
-    _setState(_State.fetchingTransactions);
+    try {
+      _setState(_State.fetchingTransactions);
 
-    final failOrList = await _financeRepository.fetchTransactionHistory();
-    failOrList.fold(
-      (failure) {
-        ViewModelUtil.handleFailure(
-          context: context,
-          failure: failure,
-        );
-      },
-      (list) {
-        monthTransactionList = list;
+      final list = await _financeRepository.fetchTransactionHistory();
+      monthTransactionList = list;
 
-        // Sort by date
-        monthTransactionList.sort((a, b) => b.timestamp.compareTo(a.timestamp));
-      },
-    );
+      // Sort by date
+      monthTransactionList.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+    } catch (e, s) {
+      ViewModelUtil.handleException(
+        e,
+        s,
+        context: context,
+      );
+    }
 
     await Future.delayed(const Duration(milliseconds: 1000));
     _setState(_State.idle);
@@ -166,52 +162,46 @@ class TransactionViewModel extends ChangeNotifier {
     BuildContext context,
     Transaction transaction,
   ) async {
-    _setState(_State.addingTransaction);
-    bool success = false;
+    try {
+      _setState(_State.addingTransaction);
 
-    final newTransaction = transaction.copyWith(uuid: const Uuid().v1());
+      final newTransaction = transaction.copyWith(uuid: const Uuid().v1());
 
-    final failOrSuccess =
-        await _financeRepository.addTransaction(newTransaction);
-    failOrSuccess.fold(
-      (failure) {
-        ViewModelUtil.handleFailure(
-          context: context,
-          failure: failure,
-        );
-      },
-      (_) {
-        monthTransactionList.add(newTransaction);
-        // Sort by date
-        monthTransactionList.sort((a, b) => b.timestamp.compareTo(a.timestamp));
-        success = true;
-      },
-    );
+      await _financeRepository.addTransaction(newTransaction);
+      monthTransactionList.add(newTransaction);
+      // Sort by date
+      monthTransactionList.sort((a, b) => b.timestamp.compareTo(a.timestamp));
 
-    // await Future.delayed(const Duration(milliseconds: 1000));
-    _setState(_State.idle);
-    return success;
+      // await Future.delayed(const Duration(milliseconds: 1000));
+      _setState(_State.idle);
+      return true;
+    } catch (e, s) {
+      ViewModelUtil.handleException(
+        e,
+        s,
+        context: context,
+      );
+      _setState(_State.idle);
+      return false;
+    }
   }
 
   Future<void> removeTransaction(
     BuildContext context,
     Transaction transaction,
   ) async {
-    _setState(_State.removingTransaction);
+    try {
+      _setState(_State.removingTransaction);
 
-    final failOrSuccess =
-        await _financeRepository.removeTransaction(transaction);
-    failOrSuccess.fold(
-      (failure) {
-        ViewModelUtil.handleFailure(
-          context: context,
-          failure: failure,
-        );
-      },
-      (_) {
-        monthTransactionList.remove(transaction);
-      },
-    );
+      await _financeRepository.removeTransaction(transaction);
+      monthTransactionList.remove(transaction);
+    } catch (e, s) {
+      ViewModelUtil.handleException(
+        e,
+        s,
+        context: context,
+      );
+    }
 
     // await Future.delayed(const Duration(milliseconds: 1000));
     _setState(_State.idle);

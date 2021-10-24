@@ -34,20 +34,16 @@ class SavingViewModel extends ChangeNotifier {
   }
 
   Future<void> fetchSavingList(BuildContext context) async {
-    _setState(_State.fetchingSaving);
-
-    final failOrList = await _financeRepository.fetchSavingList();
-    failOrList.fold(
-      (failure) {
-        ViewModelUtil.handleFailure(
-          context: context,
-          failure: failure,
-        );
-      },
-      (list) {
-        savingList = list;
-      },
-    );
+    try {
+      _setState(_State.fetchingSaving);
+      savingList = await _financeRepository.fetchSavingList();
+    } catch (e, s) {
+      ViewModelUtil.handleException(
+        e,
+        s,
+        context: context,
+      );
+    }
 
     await Future.delayed(const Duration(milliseconds: 1000));
     _setState(_State.idle);
@@ -57,49 +53,43 @@ class SavingViewModel extends ChangeNotifier {
     BuildContext context,
     Saving saving,
   ) async {
-    _setState(_State.addingSaving);
-    bool success = false;
+    try {
+      _setState(_State.addingSaving);
 
-    final newSaving = saving.copyWith(uuid: const Uuid().v1());
+      final newSaving = saving.copyWith(uuid: const Uuid().v1());
 
-    final failOrSuccess = await _financeRepository.addSaving(newSaving);
-    failOrSuccess.fold(
-      (failure) {
-        ViewModelUtil.handleFailure(
-          context: context,
-          failure: failure,
-        );
-      },
-      (_) {
-        savingList.add(newSaving);
-        success = true;
-      },
-    );
-
-    // await Future.delayed(const Duration(milliseconds: 1000));
-    _setState(_State.idle);
-    return success;
+      await _financeRepository.addSaving(newSaving);
+      savingList.add(newSaving);
+      // await Future.delayed(const Duration(milliseconds: 1000));
+      _setState(_State.idle);
+      return true;
+    } catch (e, s) {
+      ViewModelUtil.handleException(
+        e,
+        s,
+        context: context,
+      );
+      _setState(_State.idle);
+      return false;
+    }
   }
 
   Future<void> removeSaving(
     BuildContext context,
     Saving saving,
   ) async {
-    _setState(_State.removingSaving);
+    try {
+      _setState(_State.removingSaving);
 
-    final failOrSuccess = await _financeRepository.removeSaving(saving);
-    failOrSuccess.fold(
-      (failure) {
-        ViewModelUtil.handleFailure(
-          context: context,
-          failure: failure,
-        );
-      },
-      (_) {
-        savingList.remove(saving);
-      },
-    );
-
+      await _financeRepository.removeSaving(saving);
+      savingList.remove(saving);
+    } catch (e, s) {
+      ViewModelUtil.handleException(
+        e,
+        s,
+        context: context,
+      );
+    }
     // await Future.delayed(const Duration(milliseconds: 1000));
     _setState(_State.idle);
   }
