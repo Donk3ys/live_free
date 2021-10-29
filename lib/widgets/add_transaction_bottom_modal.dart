@@ -3,12 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:live_free/core/util_core.dart';
 import 'package:live_free/data_models/transaction.dart';
 import 'package:live_free/service_locator.dart';
-import 'package:live_free/view_models/transaction_vm.dart';
 import 'package:live_free/widgets/amount_input.dart';
 
 import '../core/constants.dart';
-
-final TransactionViewModel _transactionVm = sl();
 
 class AddTransactionBottomModal extends StatefulWidget {
   @override
@@ -102,9 +99,9 @@ class _TransactionTypeSelectorState extends State<_TransactionTypeSelector> {
 
   void _fetchCategoryList() {
     if (_transactionType.isExpence) {
-      _transactionCategoryList = _transactionVm.expenceCategoryList;
+      _transactionCategoryList = transactionVm.expenceCategoryList;
     } else if (_transactionType.isIncome) {
-      _transactionCategoryList = _transactionVm.incomeCategoryList;
+      _transactionCategoryList = transactionVm.incomeCategoryList;
     }
   }
 
@@ -115,11 +112,11 @@ class _TransactionTypeSelectorState extends State<_TransactionTypeSelector> {
 
     // Do after init build (So context will have scaffold for snackbar errors)
     WidgetsBinding.instance!.addPostFrameCallback((_) async {
-      if (_transactionVm.expenceCategoryList.isEmpty ||
-          _transactionVm.incomeCategoryList.isEmpty) {
-        await _transactionVm.fetchExpenceCategoryList(context);
+      if (transactionVm.expenceCategoryList.isEmpty ||
+          transactionVm.incomeCategoryList.isEmpty) {
+        await transactionVm.fetchExpenceCategoryList(context);
         if (!mounted) return;
-        await _transactionVm.fetchIncomeCategoryList(context);
+        await transactionVm.fetchIncomeCategoryList(context);
         _fetchCategoryList();
         setState(() {});
       }
@@ -202,7 +199,7 @@ class _TransactionTypeSelectorState extends State<_TransactionTypeSelector> {
                   itemBuilder: (context, index) {
                     final category = _transactionCategoryList.elementAt(index);
 
-                    final categoryInUse = _transactionVm.monthTransactionList
+                    final categoryInUse = transactionVm.monthTransactionList
                         .where(
                           (trans) => trans.transactionType == _transactionType,
                         )
@@ -386,7 +383,7 @@ class _TransactionSummaryState extends State<_TransactionSummary> {
                   onPrimary: Colors.black87,
                 ),
                 onPressed: () async {
-                  final success = await _transactionVm.addTransaction(
+                  final success = await transactionVm.addTransaction(
                     context,
                     Transaction(
                       uuid: "",

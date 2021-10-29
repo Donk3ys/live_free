@@ -22,19 +22,17 @@ final sl = GetIt.instance;
 final cacheSuccess = CacheSuccess();
 final serverSuccess = ServerSuccess();
 
+// NOTE: View Models
+final networkVm = NetworkViewModel(networkInfo: sl());
+final savingVm = SavingViewModel(financeRepository: sl());
+final themeVm = ThemeViewModel(localDataSource: sl());
+final transactionVm = TransactionViewModel(financeRepository: sl());
+
 // NOTE: Change notifiers
-final savingVmProvider = ChangeNotifierProvider<SavingViewModel>(
-  (ref) => sl(),
-);
-final transactionVmProvider = ChangeNotifierProvider<TransactionViewModel>(
-  (ref) => sl(),
-);
-final networkVMProvider = ChangeNotifierProvider<NetworkViewModel>(
-  (ref) => sl(),
-);
-final themeVMProvider = ChangeNotifierProvider<ThemeViewModel>(
-  (ref) => sl(),
-);
+final networkVMProvider = ChangeNotifierProvider((ref) => networkVm);
+final savingVmProvider = ChangeNotifierProvider((ref) => savingVm);
+final themeVMProvider = ChangeNotifierProvider((ref) => themeVm);
+final transactionVmProvider = ChangeNotifierProvider((ref) => transactionVm);
 
 Future<void> initInjector() async {
   // Init .env
@@ -49,12 +47,6 @@ Future<void> initInjector() async {
     logPrinter: CustomLogPrinter(),
     //logOptions: const LogOptions(LogLevel.all, stackTraceLevel: LogLevel.off)
   );
-
-  // NOTE: View Models
-  sl.registerLazySingleton(() => NetworkViewModel(networkInfo: sl()));
-  sl.registerLazySingleton(() => ThemeViewModel(localDataSource: sl()));
-  sl.registerLazySingleton(() => TransactionViewModel(financeRepository: sl()));
-  sl.registerLazySingleton(() => SavingViewModel(financeRepository: sl()));
 
   // NOTE: Repositories
   sl.registerLazySingleton(

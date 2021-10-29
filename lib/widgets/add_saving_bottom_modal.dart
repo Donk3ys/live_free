@@ -3,12 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:live_free/core/util_core.dart';
 import 'package:live_free/data_models/saving.dart';
 import 'package:live_free/service_locator.dart';
-import 'package:live_free/view_models/saving_vm.dart';
 import 'package:live_free/widgets/amount_input.dart';
 
 import '../core/constants.dart';
-
-final SavingViewModel _savingVm = sl();
 
 class AddSavingBottomModal extends StatefulWidget {
   @override
@@ -96,7 +93,7 @@ class _SavingNameInputState extends State<_SavingNameInput> {
   void initState() {
     // Do after init build (So context will have scaffold for snackbar errors)
     WidgetsBinding.instance!.addPostFrameCallback((_) async {
-      _savingVm.fetchSavingList(context);
+      savingVm.fetchSavingList(context);
     });
     super.initState();
   }
@@ -243,7 +240,7 @@ class _SavingSummaryState extends State<_SavingSummary> {
                   onPrimary: Colors.black87,
                 ),
                 onPressed: () async {
-                  final success = await _savingVm.addSaving(
+                  final success = await savingVm.addSaving(
                     context,
                     Saving(
                       uuid: "",

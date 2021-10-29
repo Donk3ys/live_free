@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:live_free/service_locator.dart';
-import 'package:live_free/view_models/theme_vm.dart';
 import 'package:live_free/widgets/pages/home_pg.dart';
 import 'package:vrouter/vrouter.dart';
 
@@ -12,7 +11,7 @@ Future<void> main() async {
   await initInjector();
 
   // Get Theme
-  await sl<ThemeViewModel>().getThemeModeFromStorage();
+  await themeVm.getThemeModeFromStorage();
 
   // Adding ProviderScope enables Riverpod for the entire project
   runApp(ProviderScope(child: App()));
@@ -23,12 +22,13 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer(
       builder: (context, watch, child) {
-        final themeVM = watch(themeVMProvider);
+        watch(themeVMProvider);
+
         return VRouter(
           title: "Sportee",
           logs: VLogs.none,
           debugShowCheckedModeBanner: false,
-          theme: themeVM.isDarkMode ? themeVM.dark : themeVM.light,
+          theme: themeVm.isDarkMode ? themeVm.dark : themeVm.light,
           routes: [
             // VWidget(path: '/', widget: const TestPage(),
             VWidget(
