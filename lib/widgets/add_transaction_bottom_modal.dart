@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:live_free/core/util_core.dart';
 import 'package:live_free/data_models/transaction.dart';
 import 'package:live_free/service_locator.dart';
@@ -273,6 +274,16 @@ class _TransactionSummaryState extends State<_TransactionSummary> {
   static const _kTransactionItemStyle = TextStyle(fontSize: 22.0);
   static const _kLableWidth = 30.0;
 
+  late DateTime _selectedDate;
+  late final DateTime _today;
+  @override
+  void initState() {
+    _selectedDate = DateTime.now();
+    _today =
+        DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -361,11 +372,28 @@ class _TransactionSummaryState extends State<_TransactionSummary> {
               SizedBox(
                 width: buttonWidth,
                 child: ElevatedButton(
-                  onPressed: () => null,
-                  child: const Padding(
-                    padding: EdgeInsets.all(8.0),
+                  onPressed: () async {
+                    final date = await showDatePicker(
+                      context: context,
+                      initialDate: _selectedDate,
+                      firstDate: DateTime(2021),
+                      lastDate: DateTime.now().add(const Duration(days: 31)),
+                    );
+
+                    if (date != null) _selectedDate = date;
+                    setState(() {});
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
                     child: Text(
-                      "Today",
+                      _today ==
+                              DateTime(
+                                _selectedDate.year,
+                                _selectedDate.month,
+                                _selectedDate.day,
+                              )
+                          ? "Today"
+                          : DateFormat.yMMMd().format(_selectedDate),
                       style: _kTransactionItemStyle,
                     ),
                   ),
@@ -388,7 +416,7 @@ class _TransactionSummaryState extends State<_TransactionSummary> {
                     Transaction(
                       uuid: "",
                       amount: widget.amount,
-                      timestamp: DateTime.now(),
+                      timestamp: _selectedDate,
                       transactionType: widget.transactionType,
                       category: widget.category,
                     ),
