@@ -1,5 +1,5 @@
 import 'dart:ui';
-
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -11,14 +11,14 @@ import 'package:live_free/data_models/transaction.dart';
 import 'package:live_free/service_locator.dart';
 import 'package:live_free/widgets/dialog.dart';
 
-class TransactionTypePage extends StatefulWidget {
-  const TransactionTypePage({Key? key}) : super(key: key);
+class TransactionHistoryPage extends StatefulWidget {
+  const TransactionHistoryPage({Key? key}) : super(key: key);
 
   @override
-  _TransactionTypePageState createState() => _TransactionTypePageState();
+  _TransactionHistoryPageState createState() => _TransactionHistoryPageState();
 }
 
-class _TransactionTypePageState extends State<TransactionTypePage>
+class _TransactionHistoryPageState extends State<TransactionHistoryPage>
     with WidgetsBindingObserver {
   final _scrollController = ScrollController();
 
@@ -104,6 +104,7 @@ class _MonthTransactionCategoryListView extends StatefulWidget {
 class _MonthTransactionCategoryListViewState
     extends State<_MonthTransactionCategoryListView> {
   List<List<Transaction>> _transactionCategoryList = [];
+  List<List<Transaction>> _lastMonthTransactionCategoryList = [];
 
   int _getTotal(List<Transaction> items) {
     int total = 0;
@@ -113,9 +114,12 @@ class _MonthTransactionCategoryListViewState
     return total;
   }
 
-  List<List<Transaction>> _createListByCategoryType() {
+  List<List<Transaction>> _createListByCategoryType({bool thisMonth = true}) {
     final transactionCategoryList = <List<Transaction>>[];
-    final typeFilteredList = transactionVm.monthTransactionList
+    final monthList = thisMonth
+        ? transactionVm.currentMonthTransactionList
+        : transactionVm.lastMonthTransactionList;
+    final typeFilteredList = monthList
         .where((tran) => tran.transactionType == widget.transactionType);
     if (typeFilteredList.isEmpty) return transactionCategoryList;
 
@@ -138,6 +142,8 @@ class _MonthTransactionCategoryListViewState
   @override
   void initState() {
     _transactionCategoryList = _createListByCategoryType();
+    _lastMonthTransactionCategoryList =
+        _createListByCategoryType(thisMonth: false);
     super.initState();
   }
 
@@ -153,6 +159,12 @@ class _MonthTransactionCategoryListViewState
               final transactionList = _transactionCategoryList.elementAt(index);
               final category = transactionList.first.category;
               final total = _getTotal(transactionList);
+              final lastMonthTotal = _getTotal(
+                _lastMonthTransactionCategoryList.firstWhereOrNull(
+                      (list) => list.first.category == category,
+                    ) ??
+                    [],
+              );
 
               bool showList = false;
 
@@ -178,7 +190,7 @@ class _MonthTransactionCategoryListViewState
                               ),
                             ),
                             subtitle: Text(
-                              formatNumAmount(total),
+                              "${formatNumAmount(total)}  :  last month ${formatNumAmount(lastMonthTotal)}",
                               // style: _expenceHeaderStyle,
                             ),
                             trailing: Icon(

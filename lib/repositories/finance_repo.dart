@@ -34,16 +34,4 @@ class FinanceRepository with UiLoggy {
       _localDataSource.storeSaving(saving);
   Future<Success> removeSaving(Saving saving) async =>
       _localDataSource.removeSaving(saving);
-
-//   FailOr<Success> removeSaving(Saving saving) async =>
-//       _makeCall((_) => _localDataSource.removeSaving(saving));
-//
-//   FailOr<T> _makeCall<T>(Function(T) caller) async {
-//     try {
-//       final type = caller as T;
-//       return right(type);
-//     } catch (e, s) {
-//       return left(await RepoUtil.handleException(e, s));
-//     }
-//   }
 }

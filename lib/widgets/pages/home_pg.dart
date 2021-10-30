@@ -136,7 +136,7 @@ class _MonthTransactionListView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, ScopedReader watch) {
     watch(transactionVmProvider);
-    final transactionList = transactionVm.monthTransactionList;
+    final transactionList = transactionVm.currentMonthTransactionList;
 
     return SliverToBoxAdapter(
       child: Column(
@@ -158,7 +158,7 @@ class _MonthTransactionListView extends ConsumerWidget {
                   TextButton(
                     onPressed: () => Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (ctx) => const TransactionTypePage(),
+                        builder: (ctx) => const TransactionHistoryPage(),
                       ),
                     ),
                     child: const Text(

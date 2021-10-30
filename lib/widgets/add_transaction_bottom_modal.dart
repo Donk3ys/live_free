@@ -200,13 +200,15 @@ class _TransactionTypeSelectorState extends State<_TransactionTypeSelector> {
                   itemBuilder: (context, index) {
                     final category = _transactionCategoryList.elementAt(index);
 
-                    final categoryInUse = transactionVm.monthTransactionList
-                        .where(
-                          (trans) => trans.transactionType == _transactionType,
-                        )
-                        .any(
-                          (trans) => trans.category == category,
-                        );
+                    final categoryInUse =
+                        transactionVm.currentMonthTransactionList
+                            .where(
+                              (trans) =>
+                                  trans.transactionType == _transactionType,
+                            )
+                            .any(
+                              (trans) => trans.category == category,
+                            );
 
                     return ElevatedButton(
                       style: ElevatedButton.styleFrom(

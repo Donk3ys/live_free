@@ -26,7 +26,8 @@ class TransactionViewModel extends ChangeNotifier {
 
   List<TransactionCategory> expenceCategoryList = const [];
   List<TransactionCategory> incomeCategoryList = const [];
-  List<Transaction> monthTransactionList = const [];
+  List<Transaction> currentMonthTransactionList = const [];
+  List<Transaction> lastMonthTransactionList = const [];
 
   bool get isFetchingTransactions => _state == _State.fetchingTransactions;
   bool get isAddingTransaction => _state == _State.addingTransaction;
@@ -36,7 +37,7 @@ class TransactionViewModel extends ChangeNotifier {
   // TODO: change to projected expence
   int get totalMonthExpence {
     int totalExpence = 0;
-    for (final trans in monthTransactionList) {
+    for (final trans in currentMonthTransactionList) {
       if (trans.isExpence) totalExpence += trans.amount;
     }
     return totalExpence;
@@ -126,10 +127,34 @@ class TransactionViewModel extends ChangeNotifier {
         _setState(_State.fetchingTransactions);
 
         final list = await _financeRepository.fetchTransactionHistory();
-        monthTransactionList = list;
+        final thisMonth = DateTime(DateTime.now().year, DateTime.now().month);
+        currentMonthTransactionList = list
+            .where(
+              (transaction) =>
+                  DateTime(
+                    transaction.timestamp.year,
+                    transaction.timestamp.month,
+                  ) ==
+                  thisMonth,
+            )
+            .toList();
+        final lastMonth = DateTime(thisMonth.year, thisMonth.month - 1);
+        lastMonthTransactionList = list
+            .where(
+              (transaction) =>
+                  DateTime(
+                    transaction.timestamp.year,
+                    transaction.timestamp.month,
+                  ) ==
+                  lastMonth,
+            )
+            .toList();
 
         // Sort by date
-        monthTransactionList.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+        currentMonthTransactionList
+            .sort((a, b) => b.timestamp.compareTo(a.timestamp));
+        lastMonthTransactionList
+            .sort((a, b) => b.timestamp.compareTo(a.timestamp));
       });
 
   Future<bool> addTransaction(
@@ -142,9 +167,10 @@ class TransactionViewModel extends ChangeNotifier {
       final newTransaction = transaction.copyWith(uuid: const Uuid().v1());
 
       await _financeRepository.addTransaction(newTransaction);
-      monthTransactionList.add(newTransaction);
+      currentMonthTransactionList.add(newTransaction);
       // Sort by date
-      monthTransactionList.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+      currentMonthTransactionList
+          .sort((a, b) => b.timestamp.compareTo(a.timestamp));
 
       // await Future.delayed(const Duration(milliseconds: 1000));
       _setState(_State.idle);
@@ -168,7 +194,7 @@ class TransactionViewModel extends ChangeNotifier {
         _setState(_State.removingTransaction);
 
         await _financeRepository.removeTransaction(transaction);
-        monthTransactionList.remove(transaction);
+        currentMonthTransactionList.remove(transaction);
       });
 
   // NOTE: wrapper for return void
