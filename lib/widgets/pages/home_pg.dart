@@ -56,47 +56,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         watch(themeVMProvider);
         watch(networkVMProvider);
 
-        final _totalSavings = savingVm.totalSavings;
         // final themeVM = watch(themeVMProvider);
         return SafeArea(
           child: Scaffold(
             body: CustomScrollView(
               controller: _scrollController,
               physics: const AlwaysScrollableScrollPhysics(),
-              slivers: [
-                const _SavingsListView(),
-                const _MonthTransactionListView(),
-                SliverToBoxAdapter(
-                  child: Text(
-                    "Target E6EF: ${formatNumAmount(transactionVm.target6MEF)}",
-                  ),
-                ),
-                SliverToBoxAdapter(
-                  child: Text(
-                    "Current E6EF: ${formatNumAmount(transactionVm.current6MEF(_totalSavings))}",
-                  ),
-                ),
-                SliverToBoxAdapter(
-                  child: Text(
-                    "Time to E6EF: ${transactionVm.timeToTarget6MEF(_totalSavings)}",
-                  ),
-                ),
-                const SliverToBoxAdapter(child: SizedBox(height: 20.0)),
-                SliverToBoxAdapter(
-                  child: Text(
-                    "Target Live Free: ${formatNumAmount(transactionVm.targetLiveFree)}",
-                  ),
-                ),
-                SliverToBoxAdapter(
-                  child: Text(
-                    "Current Live Free: ${formatNumAmount(transactionVm.currentLiveFree(_totalSavings))}",
-                  ),
-                ),
-                SliverToBoxAdapter(
-                  child: Text(
-                    "Time to E6EF: ${transactionVm.timeToTargetLF(_totalSavings)}",
-                  ),
-                ),
+              slivers: const [
+                _SavingsListView(),
+                _MonthTransactionListView(),
               ],
             ),
 //             bottomSheet: BottomSheet(
@@ -124,14 +92,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
 class _MonthTransactionListView extends ConsumerWidget {
   const _MonthTransactionListView({Key? key}) : super(key: key);
-
-  int _getTotal(List<Transaction> items) {
-    int total = 0;
-    for (final item in items) {
-      total = total + item.amount;
-    }
-    return total;
-  }
 
   @override
   Widget build(BuildContext context, ScopedReader watch) {
@@ -251,7 +211,7 @@ class _MonthTransactionListView extends ConsumerWidget {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    formatNumAmount(_getTotal(transactionList)),
+                    formatNumAmount(transactionVm.totalNet),
                     style: kTextStyleSubHeading,
                   ),
                 ),
@@ -269,8 +229,10 @@ class _SavingsListView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ScopedReader watch) {
+    watch(transactionVmProvider);
     watch(savingVmProvider);
     final savingList = savingVm.savingList;
+    final _totalSavings = savingVm.totalSavings;
 
     return SliverToBoxAdapter(
       child: Column(
@@ -374,10 +336,96 @@ class _SavingsListView extends ConsumerWidget {
                     style: kTextStyleSubHeading,
                   ),
                 ),
+                const SizedBox(height: 20.0),
+                _LiveFreeTile(
+                  name: "6 Month Emergency Fund",
+                  targetAmount: transactionVm.target6MEF,
+                  currentAmount: transactionVm.current6MEF(_totalSavings),
+                  timeToTarget: transactionVm.timeToTarget6MEF(_totalSavings),
+                ),
+                _LiveFreeTile(
+                  name: "Live Free Savings",
+                  targetAmount: transactionVm.targetLiveFree,
+                  currentAmount: transactionVm.currentLiveFree(_totalSavings),
+                  timeToTarget: transactionVm.timeToTargetLF(_totalSavings),
+                ),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _LiveFreeTile extends StatelessWidget {
+  final String name;
+  final int targetAmount;
+  final int currentAmount;
+  final String timeToTarget;
+  const _LiveFreeTile({
+    Key? key,
+    required this.name,
+    required this.targetAmount,
+    required this.currentAmount,
+    required this.timeToTarget,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  name,
+                  style: const TextStyle(
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  formatNumAmount(currentAmount),
+                  style: const TextStyle(
+                    color: kColorAccent,
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  "Target   ",
+                  style: kTextStyleSmallSecondary,
+                ),
+                Text(
+                  formatNumAmount(targetAmount),
+                  style: const TextStyle(
+                    color: kColorAccent,
+                  ),
+                ),
+                const Expanded(child: SizedBox()),
+                const Text(
+                  "Time to target   ",
+                  style: kTextStyleSmallSecondary,
+                ),
+                Text(
+                  timeToTarget,
+                  style: const TextStyle(color: kColorAccent),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

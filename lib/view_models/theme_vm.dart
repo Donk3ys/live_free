@@ -28,6 +28,7 @@ class ThemeViewModel extends ChangeNotifier {
 
   final dark = ThemeData.dark().copyWith(
     primaryColorDark: kColorBackgroundDark,
+    scaffoldBackgroundColor: kColorBackgroundDark,
     colorScheme: const ColorScheme.dark(
       primary: kColorAccent,
       secondary: kColorAccent,
@@ -41,12 +42,13 @@ class ThemeViewModel extends ChangeNotifier {
       ),
     ),
     visualDensity: VisualDensity.adaptivePlatformDensity,
-    //cardColor: kColorCardDark,
+    cardColor: kColorCardDark,
     //focusColor: kColorAccent,
   );
 
   final light = ThemeData.light().copyWith(
     primaryColorDark: kColorBackgroundLight,
+    scaffoldBackgroundColor: kColorBackgroundLight,
     colorScheme: const ColorScheme.light(
       primary: kColorAccent,
       secondary: kColorAccent,

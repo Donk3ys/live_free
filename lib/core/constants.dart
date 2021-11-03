@@ -13,14 +13,14 @@ typedef FailOr<R> = Future<Either<Failure, R>>;
 const kTimeOutDuration = Duration(seconds: 30);
 
 // COLORS
-// const kColorBackground = Color(0xff000000);
-const kColorBackgroundDark = Color(0xff181818);
+//const kColorBackgroundDark = Color(0xff000000);
+const kColorBackgroundDark = Colors.black87;
 const kColorBackgroundLight = Color(0xffe8e8e8);
 
 //const kColorPrimary = Color(0xff383838);
 
 const kColorButton = Color(0xff383838);
-const kColorCardDark = Color(0xff272727);
+const kColorCardDark = Color(0xff1f1f1f);
 const kColorCardLight = Color(0xfff8f8f8);
 
 const kColorAccent = Colors.amberAccent;

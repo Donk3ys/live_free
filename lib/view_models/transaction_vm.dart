@@ -43,6 +43,14 @@ class TransactionViewModel extends ChangeNotifier {
     return totalExpence;
   }
 
+  int get totalNet {
+    int total = 0;
+    for (final item in currentMonthTransactionList) {
+      total = total + item.amount;
+    }
+    return total;
+  }
+
   int get target6MEF => totalMonthExpence * -6;
   int get targetLiveFree => totalMonthExpence * -12 * 25;
 
@@ -60,11 +68,16 @@ class TransactionViewModel extends ChangeNotifier {
     return currentLF;
   }
 
+  int _get6MonthsNet(int totalSavings) {
+    final diff = target6MEF - current6MEF(totalSavings);
+    if (diff <= 0) return 0;
+    return (diff / totalNet).ceil();
+  }
+
   // TODO: calc properly
   String timeToTarget6MEF(int totalSavings) {
-    final diff = target6MEF - current6MEF(totalSavings);
-    if (diff <= 0) return "DONE!!!!";
-    final months = (diff / totalMonthExpence).ceil();
+    final months = _get6MonthsNet(totalSavings);
+    if (months == 0) return "Complete";
     String timeLeft = "$months months";
     if (months >= 12) timeLeft = "${(months / 12).toStringAsFixed(1)} years";
     return timeLeft;
@@ -73,8 +86,8 @@ class TransactionViewModel extends ChangeNotifier {
   // TODO: calc properly
   String timeToTargetLF(int totalSavings) {
     final diff = targetLiveFree - currentLiveFree(totalSavings);
-    if (diff <= 0) return "DONE!!!!";
-    final months = (diff / -totalMonthExpence).ceil() + 1;
+    if (diff <= 0) return "Complete";
+    final months = (diff / totalNet).ceil() + 1 + _get6MonthsNet(totalSavings);
     String timeLeft = "$months months";
     if (months >= 12) timeLeft = "${(months / 12).toStringAsFixed(1)} years";
     return timeLeft;
