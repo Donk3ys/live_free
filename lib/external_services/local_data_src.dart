@@ -144,6 +144,7 @@ class LocalDataSource with UiLoggy {
   Future<CacheSuccess> storeTransaction(
     Transaction transaction,
   ) async {
+    loggy.debug(transaction.timestamp);
     final transHistList = await transactionHistory;
     transHistList.add(transaction);
 

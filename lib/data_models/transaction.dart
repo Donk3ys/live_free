@@ -71,8 +71,9 @@ class Transaction {
         uuid: json["uuid"] as String,
         // name = json["name"] as String,
         amount: json["amount"] as int,
-        timestamp:
-            DateTime.tryParse(json["timestamp"] as String) ?? DateTime(1970),
+        timestamp: DateTime.parse(
+          "${json["timestamp"] as String? ?? kNullDateString}Z",
+        ).toLocal(),
         transactionType:
             TransactionTypeExtension.fromInt(json["transaction_type"] as int),
         category: TransactionCategory.fromJson(json["category"] as JsonMap),
