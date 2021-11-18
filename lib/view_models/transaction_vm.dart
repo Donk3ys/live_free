@@ -229,12 +229,14 @@ class TransactionViewModel extends ChangeNotifier {
 
         await _financeRepository.removeTransaction(transaction);
         currentMonthTransactionList.remove(transaction);
+        // lastMonthTransactionList.remove(transaction);
+        allTransactionList.remove(transaction);
       });
 
   // NOTE: wrapper for return void
   Future<void> _makeCall(BuildContext context, Function call) async {
     try {
-      call();
+      await call();
     } catch (e, s) {
       ViewModelUtil.handleException(
         e,

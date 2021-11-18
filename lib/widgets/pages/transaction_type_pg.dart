@@ -185,6 +185,7 @@ class _MonthTransactionCategoryListViewState
               bool showList = false;
 
               return StatefulBuilder(
+                key: UniqueKey(),
                 builder: (context, setListState) {
                   return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -229,6 +230,7 @@ class _MonthTransactionCategoryListViewState
                                     transactionList.elementAt(index);
 
                                 return Card(
+                                  key: UniqueKey(),
                                   child: InkWell(
                                     onLongPress: () async {
                                       final confirmDel = await showDialog(

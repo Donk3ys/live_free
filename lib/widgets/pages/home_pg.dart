@@ -12,7 +12,6 @@ import 'package:live_free/widgets/add_saving_bottom_modal.dart';
 import 'package:live_free/widgets/add_transaction_bottom_modal.dart';
 import 'package:live_free/widgets/dialog.dart';
 import 'package:live_free/widgets/loading.dart';
-import 'package:live_free/widgets/pages/transaction_type_pg.dart';
 import 'package:vrouter/vrouter.dart';
 
 class HomePage extends StatefulWidget {
@@ -160,6 +159,7 @@ class _MonthTransactionListView extends ConsumerWidget {
                       final transaction = transactionList.elementAt(index);
 
                       return Card(
+                        key: UniqueKey(),
                         child: InkWell(
                           onLongPress: () async {
                             final confirmDel = await showDialog(
@@ -291,6 +291,7 @@ class _SavingsListView extends ConsumerWidget {
                     itemBuilder: (BuildContext context, int index) {
                       final saving = savingList.elementAt(index);
                       return Card(
+                        key: UniqueKey(),
                         child: InkWell(
                           onLongPress: () async {
                             final confirmDel = await showDialog(

@@ -45,106 +45,97 @@ class _AllTransactionHistoryPageState extends State<AllTransactionHistoryPage>
         watch(themeVMProvider);
         watch(networkVMProvider);
 
-        // final themeVM = watch(themeVMProvider);
+        final transactionList = transactionVm.allTransactionList;
         return SafeArea(
-          child: Consumer(
-            builder: (context, watch, child) {
-              watch(transactionVmProvider);
-              final transactionList = transactionVm.allTransactionList;
+          child: Scaffold(
+            body: Padding(
+              padding: const EdgeInsets.only(right: 20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: const [
+                        Text("Type", style: kTextStyleSmallSecondary),
+                        Text("Amount", style: kTextStyleSmallSecondary),
+                      ],
+                    ),
+                  ),
+                  if (transactionVm.isFetchingTransactions)
+                    const LoadingWidget()
+                  else
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: transactionList.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          final transaction = transactionList.elementAt(index);
 
-              return Scaffold(
-                body: Padding(
-                  padding: const EdgeInsets.only(right: 20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: const [
-                            Text("Type", style: kTextStyleSmallSecondary),
-                            Text("Amount", style: kTextStyleSmallSecondary),
-                          ],
-                        ),
-                      ),
-                      if (transactionVm.isFetchingTransactions)
-                        const LoadingWidget()
-                      else
-                        Expanded(
-                          child: ListView.builder(
-                            itemCount: transactionList.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              final transaction =
-                                  transactionList.elementAt(index);
+                          return Card(
+                            key: UniqueKey(),
+                            child: InkWell(
+                              onLongPress: () async {
+                                final confirmDel = await showDialog(
+                                  context: context,
+                                  builder: (ctx) => ConfirmDeleteDialog(
+                                    bodyText:
+                                        "${transaction.category.name} : ${formatNumAmount(transaction.amount)}",
+                                  ),
+                                ) as bool?;
 
-                              return Card(
-                                child: InkWell(
-                                  onLongPress: () async {
-                                    final confirmDel = await showDialog(
-                                      context: context,
-                                      builder: (ctx) => ConfirmDeleteDialog(
-                                        bodyText:
-                                            "${transaction.category.name} : ${formatNumAmount(transaction.amount)}",
-                                      ),
-                                    ) as bool?;
-
-                                    if (!mounted) return;
-                                    if (confirmDel != null && confirmDel) {
-                                      transactionVm.removeTransaction(
-                                        context,
-                                        transaction,
-                                      );
-                                    }
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                if (!mounted) return;
+                                if (confirmDel != null && confirmDel) {
+                                  transactionVm.removeTransaction(
+                                    context,
+                                    transaction,
+                                  );
+                                }
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(transaction.category.name),
-                                            Text(
-                                              formatNumAmount(
-                                                  transaction.amount),
-                                              style: TextStyle(
-                                                color: transaction.isIncome
-                                                    ? kColorIncome
-                                                    : kColorExpence,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 4.0),
+                                        Text(transaction.category.name),
                                         Text(
-                                          DateFormat("EEE d/M/y")
-                                              .format(transaction.timestamp),
-                                          style: kTextStyleSmallSecondary,
+                                          formatNumAmount(transaction.amount),
+                                          style: TextStyle(
+                                            color: transaction.isIncome
+                                                ? kColorIncome
+                                                : kColorExpence,
+                                          ),
                                         ),
                                       ],
                                     ),
-                                  ),
+                                    const SizedBox(height: 4.0),
+                                    Text(
+                                      DateFormat("EEE d/M/y")
+                                          .format(transaction.timestamp),
+                                      style: kTextStyleSmallSecondary,
+                                    ),
+                                  ],
                                 ),
-                              );
-                            },
-                          ),
-                        ),
-                      const Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text(
-                          "Transaction History",
-                          style: kTextStyleSubHeading,
-                        ),
+                              ),
+                            ),
+                          );
+                        },
                       ),
-                    ],
+                    ),
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      "Transaction History",
+                      style: kTextStyleSubHeading,
+                    ),
                   ),
-                ),
-              );
-            },
+                ],
+              ),
+            ),
           ),
         );
       },
