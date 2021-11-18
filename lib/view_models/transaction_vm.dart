@@ -136,7 +136,7 @@ class TransactionViewModel extends ChangeNotifier {
           TransactionCategory(id: 12, name: "Education"),
           TransactionCategory(id: 13, name: "Other"),
           TransactionCategory(id: 14, name: "Gambling"),
-          TransactionCategory(id: 15, name: "Asset Maintainance"),
+          TransactionCategory(id: 15, name: "Asset Maintain"),
         ];
 
         // Sort list

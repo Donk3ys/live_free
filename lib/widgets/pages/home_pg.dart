@@ -109,7 +109,7 @@ class _MonthTransactionListView extends ConsumerWidget {
                 children: [
                   const Expanded(
                     child: Text(
-                      "This Month",
+                      "Transactions",
                       style: kTextStyleHeading,
                       textAlign: TextAlign.start,
                     ),

@@ -109,6 +109,7 @@ class _AmountSelectorState extends State<AmountSelector> {
                       color: widget.color,
                     ),
                     textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 const SizedBox(width: 48.0),
