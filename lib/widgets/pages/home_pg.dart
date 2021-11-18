@@ -7,13 +7,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:live_free/core/constants.dart';
 import 'package:live_free/core/util_core.dart';
-import 'package:live_free/data_models/transaction.dart';
 import 'package:live_free/service_locator.dart';
 import 'package:live_free/widgets/add_saving_bottom_modal.dart';
 import 'package:live_free/widgets/add_transaction_bottom_modal.dart';
 import 'package:live_free/widgets/dialog.dart';
 import 'package:live_free/widgets/loading.dart';
 import 'package:live_free/widgets/pages/transaction_type_pg.dart';
+import 'package:vrouter/vrouter.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -116,11 +116,14 @@ class _MonthTransactionListView extends ConsumerWidget {
                     ),
                   ),
                   TextButton(
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (ctx) => const TransactionHistoryPage(),
-                      ),
+                    onPressed: () =>
+                        context.vRouter.to(kMonthTransactionsRoute),
+                    child: const Text(
+                      "Month",
                     ),
+                  ),
+                  TextButton(
+                    onPressed: () => context.vRouter.to(kAllTransactionsRoute),
                     child: const Text(
                       "All",
                     ),

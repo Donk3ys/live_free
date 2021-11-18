@@ -28,6 +28,7 @@ class TransactionViewModel extends ChangeNotifier {
   List<TransactionCategory> incomeCategoryList = const [];
   List<Transaction> currentMonthTransactionList = const [];
   List<Transaction> lastMonthTransactionList = const [];
+  List<Transaction> allTransactionList = const [];
 
   bool get isFetchingTransactions => _state == _State.fetchingTransactions;
   bool get isAddingTransaction => _state == _State.addingTransaction;
@@ -111,6 +112,7 @@ class TransactionViewModel extends ChangeNotifier {
           TransactionCategory(id: 3, name: "Gift"),
           TransactionCategory(id: 4, name: "Rent"),
           TransactionCategory(id: 5, name: "Bonus"),
+          TransactionCategory(id: 6, name: "Gambling"),
         ];
         // Sort list
         incomeCategoryList.sort((a, b) => a.name.compareTo(b.name));
@@ -133,6 +135,8 @@ class TransactionViewModel extends ChangeNotifier {
           TransactionCategory(id: 11, name: "Entertain"),
           TransactionCategory(id: 12, name: "Education"),
           TransactionCategory(id: 13, name: "Other"),
+          TransactionCategory(id: 14, name: "Gambling"),
+          TransactionCategory(id: 15, name: "Asset Maintainance"),
         ];
 
         // Sort list
@@ -174,6 +178,17 @@ class TransactionViewModel extends ChangeNotifier {
             .sort((a, b) => b.timestamp.compareTo(a.timestamp));
         lastMonthTransactionList
             .sort((a, b) => b.timestamp.compareTo(a.timestamp));
+      });
+
+  Future<void> fetchAllTransactions(
+    BuildContext context,
+  ) async =>
+      _makeCall(context, () async {
+        _setState(_State.fetchingTransactions);
+
+        allTransactionList = await _financeRepository.fetchTransactionHistory();
+        // Sort by date
+        allTransactionList.sort((a, b) => b.timestamp.compareTo(a.timestamp));
       });
 
   Future<bool> addTransaction(

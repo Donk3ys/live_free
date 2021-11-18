@@ -138,3 +138,8 @@ final Uri kSupportEmailLaunchUri = Uri(
   path: 'support@findgo.co.za',
   query: 'subject=FindGo Support',
 );
+
+// INFO: Routes
+const kHomeRoute = "/";
+const kMonthTransactionsRoute = "/transactions/month";
+const kAllTransactionsRoute = "/transactions/all";

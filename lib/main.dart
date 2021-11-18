@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:live_free/core/constants.dart';
 import 'package:live_free/service_locator.dart';
+import 'package:live_free/widgets/pages/all_transactions_pg.dart';
 import 'package:live_free/widgets/pages/home_pg.dart';
+import 'package:live_free/widgets/pages/transaction_type_pg.dart';
 import 'package:vrouter/vrouter.dart';
 
 Future<void> main() async {
@@ -32,7 +35,7 @@ class App extends StatelessWidget {
           routes: [
             // VWidget(path: '/', widget: const TestPage(),
             VWidget(
-              path: '/',
+              path: kHomeRoute,
               widget: const HomePage(),
               buildTransition: (a, _, child) =>
                   FadeTransition(opacity: a, child: child),
@@ -43,21 +46,27 @@ class App extends StatelessWidget {
                 if (router.historyCanBack()) {
                   router.historyBack();
                 } else {
-                  router.to("/");
+                  router.to(kHomeRoute);
                 }
               },
               onSystemPop: (router) async {
                 if (router.historyCanBack()) {
                   router.historyBack();
                 } else {
-                  router.to("/");
+                  router.to(kHomeRoute);
                 }
               },
               stackedRoutes: [
                 // Profile
                 VWidget(
-                  path: '/expences',
-                  widget: const Placeholder(),
+                  path: kMonthTransactionsRoute,
+                  widget: const TransactionHistoryPage(),
+                  buildTransition: (a, _, child) =>
+                      FadeTransition(opacity: a, child: child),
+                ),
+                VWidget(
+                  path: kAllTransactionsRoute,
+                  widget: const AllTransactionHistoryPage(),
                   buildTransition: (a, _, child) =>
                       FadeTransition(opacity: a, child: child),
                 ),
