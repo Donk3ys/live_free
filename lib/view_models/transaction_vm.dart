@@ -35,13 +35,19 @@ class TransactionViewModel extends ChangeNotifier {
   bool get hasError => _state == _State.error;
 
   // TODO: change to projected expence
-  int get totalMonthExpence {
-    int totalExpence = 0;
+  int totalMonthAmount(TransactionType type) {
+    int total = 0;
     for (final trans in currentMonthTransactionList) {
-      if (trans.isExpence) totalExpence += trans.amount;
+      if (type == TransactionType.expence ? trans.isExpence : trans.isIncome) {
+        total += trans.amount;
+      }
     }
-    return totalExpence;
+    return total;
   }
+
+  int get totalMonthExpence => totalMonthAmount(TransactionType.expence);
+
+  int get totalMonthIncome => totalMonthAmount(TransactionType.income);
 
   int get totalNet {
     int total = 0;

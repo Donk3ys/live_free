@@ -55,10 +55,18 @@ class _TransactionHistoryPageState extends State<TransactionHistoryPage>
                   child: Container(
                     padding: const EdgeInsets.all(16.0),
                     width: double.infinity,
-                    child: const Text(
-                      "Income",
-                      style: kTextStyleHeading,
-                      textAlign: TextAlign.start,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "Income",
+                          style: kTextStyleHeading,
+                        ),
+                        Text(
+                          formatNumAmount(transactionVm.totalMonthIncome),
+                          style: kTextStyleSubHeading,
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -69,10 +77,18 @@ class _TransactionHistoryPageState extends State<TransactionHistoryPage>
                   child: Container(
                     padding: const EdgeInsets.all(16.0),
                     width: double.infinity,
-                    child: const Text(
-                      "Expence",
-                      style: kTextStyleHeading,
-                      textAlign: TextAlign.start,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "Expense",
+                          style: kTextStyleHeading,
+                        ),
+                        Text(
+                          formatNumAmount(transactionVm.totalMonthExpence),
+                          style: kTextStyleSubHeading,
+                        ),
+                      ],
                     ),
                   ),
                 ),
